@@ -1,0 +1,49 @@
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class Driver {
+	
+	public static void main(String[] args)  {
+		
+		
+		try {
+			ArgumentParser ap = new ArgumentParser(args);
+			Path inputPath = Paths.get(ap.getValue("-input"));
+			System.out.println("in main path = " + inputPath);
+			Path outputPath = Paths.get(ap.getValue("-output"));
+			
+			MusicLibraryBuilder mlb = new MusicLibraryBuilder(inputPath);
+			MusicLibrary ml = new MusicLibrary();
+			
+			mlb.traverseParser();
+			
+			
+				
+				
+				if (ap.getValue("-order").equals("artist")) {
+					
+					ml.outputByArtist(outputPath);
+					
+				}
+				else if (ap.getValue("-order").equals("title")) {
+					
+					ml.outputByTitle(outputPath);
+					
+				}
+				else if (ap.getValue("-order").equals("tag")) {
+					
+					ml.outputByTag(outputPath);
+					
+				}
+				
+				
+		} catch (InvalidArgumentException e) {
+			
+			e.printStackTrace();
+			System.out.println("Incorrect Arguments");
+		}
+		
+	}
+
+}
