@@ -37,7 +37,6 @@ public class MusicLibrary {
 	public void addSong(Song song) {
 		
 		String artist_check = song.getArtist();
-		System.out.println(artist_check);
 		
 		if (!this.byArtist.containsKey(artist_check)) {
 			this.byArtist.put(artist_check, new TreeSet<Song>(new ByArtistComparator()));
@@ -45,17 +44,14 @@ public class MusicLibrary {
 		
 		// if there is already an TreeSet of songs for that artist, it add that song info to the already existing TreeSet
 		this.byArtist.get(artist_check).add(song);
-		System.out.println(byArtist.size());
 		
 		String title_check = song.getTitle();
-		System.out.println(title_check);
 		
 		if (!this.byTitle.containsKey(title_check)) {
 			this.byTitle.put(title_check, new TreeSet<Song>(new ByTitleComparator()));
 		}
 		
 		this.byTitle.get(title_check).add(song);
-		System.out.println(byTitle.size());
 		
 		// adding Songs by their tag
 		
@@ -94,10 +90,8 @@ public class MusicLibrary {
 	 */
 	
 	public void outputByArtist(Path path) {
-		System.out.println(byArtist.size());
 		
 		try(PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")))) {
-			
 			for (String artist : this.byArtist.navigableKeySet()) {	
 				TreeSet<Song> songs = this.byArtist.get(artist);      
 				

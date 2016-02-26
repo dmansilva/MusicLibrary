@@ -94,7 +94,6 @@ public class MusicLibrary {
 	 */
 	
 	public void outputByArtist(Path path) {
-		System.out.println(byArtist.size());
 		
 		try(PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")))) {
 			

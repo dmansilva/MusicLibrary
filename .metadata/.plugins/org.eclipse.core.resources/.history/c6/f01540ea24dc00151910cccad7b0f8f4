@@ -77,6 +77,8 @@ public class MusicLibrary {
 			}
 		}
 		
+		System.out.println(byArtist.size());
+		
 		
 	}
 	
