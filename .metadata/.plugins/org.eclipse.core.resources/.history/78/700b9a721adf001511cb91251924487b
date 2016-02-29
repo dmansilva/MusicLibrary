@@ -32,7 +32,7 @@ public class Driver {
 					
 				}
 				else if (ap.getValue("-order").equals("tag")) {
-					System.out.println(ml);
+					
 					ml.outputByTag(outputPath);
 					
 				}

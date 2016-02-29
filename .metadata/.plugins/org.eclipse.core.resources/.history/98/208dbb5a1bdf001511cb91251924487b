@@ -155,7 +155,7 @@ public class MusicLibrary {
 					allTrackIds.append(" " + itr.next());
 					
 				}
-				writer.println(tag + ":" + allTrackIds.toString());
+				writer.println(tag + " -" + allTrackIds.toString());
 				//writer.println(tag + " - " + byTag.get(tag));
 			}
 		} catch (IOException e) {

@@ -87,8 +87,4 @@ public class MusicLibraryBuilder {
 			e.printStackTrace();
 		} 
 	}
-	
-	public MusicLibrary getMusicLibrary() {
-		return lib;
-	}
 }

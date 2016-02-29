@@ -37,7 +37,7 @@ public class MusicLibrary {
 	public void addSong(Song song) {
 		
 		String artist_check = song.getArtist();
-		//System.out.println(artist_check);
+		System.out.println(artist_check);
 		
 		if (!this.byArtist.containsKey(artist_check)) {
 			this.byArtist.put(artist_check, new TreeSet<Song>(new ByArtistComparator()));
@@ -94,7 +94,7 @@ public class MusicLibrary {
 	 */
 	
 	public void outputByArtist(Path path) {
-		//System.out.println(byArtist.size());
+		System.out.println(byArtist.size());
 		
 		try(PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")))) {
 			
@@ -106,7 +106,6 @@ public class MusicLibrary {
 				while (itr.hasNext()) {
 					Song eachSong = itr.next();
 					String titles = eachSong.getTitle();
-					//System.out.println(titles);
 					writer.println(artist + " - " +  titles);
 				}
 					
@@ -155,7 +154,7 @@ public class MusicLibrary {
 					allTrackIds.append(" " + itr.next());
 					
 				}
-				writer.println(tag + ":" + allTrackIds.toString());
+				writer.println(tag + " -" + allTrackIds.toString());
 				//writer.println(tag + " - " + byTag.get(tag));
 			}
 		} catch (IOException e) {

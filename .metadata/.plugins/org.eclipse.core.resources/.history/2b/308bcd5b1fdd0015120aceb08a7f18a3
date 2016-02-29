@@ -11,10 +11,10 @@ public class Driver {
 			ArgumentParser ap = new ArgumentParser(args);
 			Path inputPath = Paths.get(ap.getValue("-input"));
 			Path outputPath = Paths.get(ap.getValue("-output"));
-			//System.out.println("in main output path is " + outputPath);
+			System.out.println("in main output path is " + outputPath);
 			
 			MusicLibraryBuilder mlb = new MusicLibraryBuilder(inputPath);
-			MusicLibrary ml = mlb.getMusicLibrary();
+			MusicLibrary ml;
 			
 			mlb.traverseParser();
 			
@@ -22,7 +22,7 @@ public class Driver {
 				
 				
 				if (ap.getValue("-order").equals("artist")) {
-					//System.out.println(ml);
+					
 					ml.outputByArtist(outputPath);
 					
 				}
@@ -32,7 +32,7 @@ public class Driver {
 					
 				}
 				else if (ap.getValue("-order").equals("tag")) {
-					System.out.println(ml);
+					
 					ml.outputByTag(outputPath);
 					
 				}
