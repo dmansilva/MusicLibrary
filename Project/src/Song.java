@@ -7,7 +7,7 @@ public class Song {
 	
 	/*
 	 * Class that stores data from a single song, very similar to Song.java in last homework
-	 * 
+	 * Got variables for artist, trackId, title and similars and tags
 	 * 
 	 */
 
@@ -16,6 +16,11 @@ public class Song {
 	private String title;
 	private ArrayList<String> similars;
 	private ArrayList<String> tags;
+	
+	/*
+	 * Constructor Overloading. First constructor takes in all the variables for each part of a song and 
+	 * Initializes them.
+	 */
 	
 	
 	public Song(String artist, String trackId, String title, ArrayList<String> similars, ArrayList<String> tags) {
@@ -31,13 +36,10 @@ public class Song {
 	
 	/**
 	 * Constructor that takes as input a JSONObject as illustrated in the example above and
-	 * constructs a Song object by extract the relevant data.
+	 * constructs a Song object by extract the relevant data by intializing their respective 
+	 * variables to value in the song.
 	 * @param object
 	 * 
-	 * Get similars by extracting the JSONArray and iterating through it. At each index, which is going to be its 
-	 * own array, I store that as a temporary JSONArray. Using the temporary JSONArray, i extract the first index of 
-	 * the array and save that as a string called temp. Then add each temp to the similars ArrayLists I initialized
-	 * in the constructor
 	 */
 	
 	public Song(JSONObject object) {
@@ -45,18 +47,10 @@ public class Song {
 		this.artist = (String)object.get("artist");
 		this.trackId = (String)object.get("track_id");
 		this.title = (String)object.get("title");
-		JSONArray simple = (JSONArray)object.get("similars");
-		ArrayList<String> similars = new ArrayList<String>();
-		for (int i = 0; i < simple.size(); i++) {
-			JSONArray temporary = (JSONArray) simple.get(i);
-			String temp = (String) temporary.get(0);
-			similars.add(temp);
-		}
+		this.similars = (JSONArray)object.get("similars");
 		this.tags = (JSONArray)object.get("tags");
 		
 	}
-	
-	// constructor overloading 
 	
 	
 	/**

@@ -1,13 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="Project1Test" project="Project" tests="11" started="11" failures="1" errors="0" ignored="0">
-  <testsuite name="Project1Test" time="5.427">
-    <testsuite name="LibraryTest" time="5.424">
-      <testcase name="testByTag" classname="LibraryTest" time="2.637"/>
-      <testcase name="testBadInputPath" classname="LibraryTest" time="0.001"/>
-      <testcase name="testSimpleByArtistWithTxtFile" classname="LibraryTest" time="0.005"/>
-      <testcase name="testByTitle" classname="LibraryTest" time="1.4"/>
-      <testcase name="testBadOutputPath" classname="LibraryTest" time="0.002"/>
-      <testcase name="testSimpleByArtist" classname="LibraryTest" time="0.021">
-        <failure>java.lang.AssertionError: 
+<?xml version="1.0" encoding="UTF-8"?><testrun name="Rerun LibraryTest.testSimpleByArtist" project="Project" tests="1" started="1" failures="1" errors="0" ignored="0">
+  <testcase name="testSimpleByArtist" classname="LibraryTest" time="0.0">
+    <failure>java.lang.AssertionError: 
 Test Case: testSimpleByArtist
  Mismatched Line: 3
 
@@ -32,14 +25,6 @@ Test Case: testSimpleByArtist
 	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
 	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
-	at org.junit.runners.Suite.runChild(Suite.java:128)
-	at org.junit.runners.Suite.runChild(Suite.java:27)
-	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
-	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
-	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
-	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
-	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
-	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
 	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:86)
 	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
 	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
@@ -48,14 +33,5 @@ Test Case: testSimpleByArtist
 	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
 
 </failure>
-      </testcase>
-      <testcase name="testByArtist" classname="LibraryTest" time="1.355"/>
-      <testcase name="testBadOrderValue" classname="LibraryTest" time="0.001"/>
-    </testsuite>
-    <testsuite name="ProjectTest" time="0.003">
-      <testcase name="testNoArguments" classname="ProjectTest" time="0.001"/>
-      <testcase name="testEnvironment" classname="ProjectTest" time="0.001"/>
-      <testcase name="testBadArguments" classname="ProjectTest" time="0.001"/>
-    </testsuite>
-  </testsuite>
+  </testcase>
 </testrun>

@@ -1,12 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="LibraryTest" project="Project" tests="8" started="8" failures="1" errors="0" ignored="0">
-  <testsuite name="LibraryTest" time="5.368">
-    <testcase name="testByTag" classname="LibraryTest" time="2.593"/>
-    <testcase name="testBadInputPath" classname="LibraryTest" time="0.001"/>
-    <testcase name="testSimpleByArtistWithTxtFile" classname="LibraryTest" time="0.005"/>
-    <testcase name="testByTitle" classname="LibraryTest" time="1.379"/>
-    <testcase name="testBadOutputPath" classname="LibraryTest" time="0.001"/>
-    <testcase name="testSimpleByArtist" classname="LibraryTest" time="0.012">
-      <failure>java.lang.AssertionError: 
+<?xml version="1.0" encoding="UTF-8"?><testrun name="Rerun LibraryTest.testSimpleByArtist" project="Project" tests="1" started="1" failures="1" errors="0" ignored="0">
+  <testcase name="testSimpleByArtist" classname="LibraryTest" time="0.028">
+    <failure>java.lang.AssertionError: 
 Test Case: testSimpleByArtist
  Mismatched Line: 3
 
@@ -39,8 +33,5 @@ Test Case: testSimpleByArtist
 	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
 
 </failure>
-    </testcase>
-    <testcase name="testByArtist" classname="LibraryTest" time="1.376"/>
-    <testcase name="testBadOrderValue" classname="LibraryTest" time="0.001"/>
-  </testsuite>
+  </testcase>
 </testrun>

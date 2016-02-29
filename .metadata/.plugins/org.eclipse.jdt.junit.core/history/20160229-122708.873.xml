@@ -1,13 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="Rerun LibraryTest.testByTag" project="Project" tests="1" started="1" failures="1" errors="0" ignored="0">
-  <testcase name="testByTag" classname="LibraryTest" time="2.454">
-    <failure>java.lang.AssertionError: 
-Test Case: testByTag
- Mismatched Line: 1
+<?xml version="1.0" encoding="UTF-8"?><testrun name="LibraryTest" project="Project" tests="8" started="8" failures="1" errors="0" ignored="0">
+  <testsuite name="LibraryTest" time="5.756">
+    <testcase name="testByTag" classname="LibraryTest" time="2.898"/>
+    <testcase name="testBadInputPath" classname="LibraryTest" time="0.0"/>
+    <testcase name="testSimpleByArtistWithTxtFile" classname="LibraryTest" time="0.003"/>
+    <testcase name="testByTitle" classname="LibraryTest" time="1.344"/>
+    <testcase name="testBadOutputPath" classname="LibraryTest" time="0.002"/>
+    <testcase name="testSimpleByArtist" classname="LibraryTest" time="0.008">
+      <failure>java.lang.AssertionError: 
+Test Case: testSimpleByArtist
+ Mismatched Line: 3
 
 	at org.junit.Assert.fail(Assert.java:88)
 	at ProjectTest.checkProjectOutput(ProjectTest.java:171)
 	at LibraryTest.runTest(LibraryTest.java:82)
-	at LibraryTest.testByTag(LibraryTest.java:72)
+	at LibraryTest.testSimpleByArtist(LibraryTest.java:37)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -33,5 +39,8 @@ Test Case: testByTag
 	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
 
 </failure>
-  </testcase>
+    </testcase>
+    <testcase name="testByArtist" classname="LibraryTest" time="1.498"/>
+    <testcase name="testBadOrderValue" classname="LibraryTest" time="0.002"/>
+  </testsuite>
 </testrun>

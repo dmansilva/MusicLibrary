@@ -36,10 +36,11 @@ public class ArgumentParser {
 	}
 
 	/**
-	 * Iterates through the array of command-line arguments. If a flag is
-	 * found, will attempt to see if it is followed by a value. If so, the
-	 * flag/value pair is added to the map. If it isn't followed by a Value
-	 * then it exits the program gracefully
+	 * Iterates through the array of command-line arguments. It makes sure that the command line arguments are greater than 0
+	 * Then I iterate through the args with a for loop. Within the for loop I check if the first statement is a flag calling 
+	 * isFlag method and check if the argument after that is a value using my isValue method. If they are then I check if the 
+	 * flag variables are correct by using if statement to see if they are either input, output, or order. If so I add the first
+	 * argument as my key and the one after as my value in the Hashmap i created called argumentMap.
 	 * 
 	 *
 	 * @param args command-line arguments
@@ -51,9 +52,9 @@ public class ArgumentParser {
 		if (args.length > 0) {
 			for (int i = 0; i < args.length -1; i = i + 2) {
 				if (isFlag(args[i]) == true && isValue(args[i + 1]) == true) {
-					// check if flag = input
+					
 					if (args[i].equals("-input")) {
-																// then check if value = correct input value
+																
 						argumentMap.put(args[i], args[i + 1]);
 						
 					}
@@ -70,23 +71,14 @@ public class ArgumentParser {
 					else {
 						throw new InvalidArgumentException("Incorrect Command Line Arguments");
 					}
-					//		 add 1 to flagCount and add 1 to valueCount
-					//		 argumentMap.put(args[i], args[i + 1]);
-					// check if flag = output
-					//		 then check if value = correct output value
-					//		 add 1 to flagCount and add 1 to valueCount
-					//		 argumentMap.put(args[i], args[i + 1]);
-					// check if flag = order
-					//		 then check if value = correct order value
-					//		 add 1 to flagCount and add 1 to valueCount
-					//		 argumentMap.put(args[i], args[i + 1]);
-					//argumentMap.put(args[i], args[i + 1]);
+					
 				}
 				
 			}
 			
-			if (numFlags() != 3) {   									// if the number of flags isn't 3 then
-				throw new InvalidArgumentException("Not correct amount of flags");	// then exit the program
+			if (numFlags() != 3) { 
+				
+				throw new InvalidArgumentException("Not correct amount of flags");	
 			}
 			
 			
@@ -158,43 +150,7 @@ public class ArgumentParser {
 		return argumentMap.size();
 	}
 
-	/**
-	 * Tests if the provided flag is stored in the map.
-	 *
-	 * @param flag flag to check
-	 * @return value if flag exists and has a value, or null if the flag
-	 * does not exist or does not have a value
-	 */
-	public boolean hasFlag(String flag) {
-		
-		if (argumentMap.containsKey(flag)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 
-	/**
-	 * Tests if the provided flag has a non-empty value.
-	 *
-	 * @param flag flag to check
-	 * @return true if the flag exists and has a non-null non-empty value
-	 */
-	public boolean hasValue(String flag) {
-		
-		if (argumentMap.containsKey(flag) && argumentMap.get(flag) != null) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	/**
-	 * Returns the value of a flag if it exists, and null otherwise.
-	 *
-	 * @param flag flag to check
-	 * @return value of flag or null if flag does not exist or has no value
-	 */
 	public String getValue(String flag) {
 		
 		if (argumentMap.get(flag) != null) {
@@ -209,17 +165,5 @@ public class ArgumentParser {
 		return argumentMap.toString();
 	}
 	
-//	/*
-//	 * Use this (and the unit tests) for debugging! 
-//	 */
-//	public static void main(String[] args) {
-//		String[] test = new String[] {" -", "apple", "-b", "banana"};
-//		ArgumentParser parser = new ArgumentParser(test);
-//		
-//		System.out.println("  Test: " + Arrays.toString(test));
-//		System.out.println("Result: " + parser.toString());
-//		
-//		System.out.println(test[0]);
-//		
-//	}
+
 }
