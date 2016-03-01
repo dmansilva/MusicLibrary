@@ -17,7 +17,7 @@ public class MusicLibraryBuilder {
 	 * builds the library (data structure initialization)
 	 * 
 	 */
-	
+//TODO: instance variables should be private unless there is a good reason to do otherwise!	
 	Path path;
 	MusicLibrary lib;
 	
@@ -29,7 +29,7 @@ public class MusicLibraryBuilder {
 	public MusicLibraryBuilder(Path path) {
 		
 		this.path = path;
-		lib = new MusicLibrary();
+		lib = new MusicLibrary(); //TODO: consider using this.lib
 		
 	}
 	
