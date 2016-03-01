@@ -47,6 +47,7 @@ public class Song {
 		this.artist = (String)object.get("artist");
 		this.trackId = (String)object.get("track_id");
 		this.title = (String)object.get("title");
+//TODO: implement logic to extract the 0th item from each inner array for both similars and tags.		
 		this.similars = (JSONArray)object.get("similars");
 		this.tags = (JSONArray)object.get("tags");
 		
