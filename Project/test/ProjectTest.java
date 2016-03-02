@@ -1,5 +1,3 @@
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,198 +20,247 @@ import org.junit.Test;
  */
 public class ProjectTest {
 
-    // Project Configuration
+	// Project Configuration
 
-    public static final String INPUT_DIR  = "input";
-    public static final String OUTPUT_DIR = "output";
-    public static final String RESULT_DIR = "results";
+	public static final String INPUT_DIR  = "input";
+	public static final String OUTPUT_DIR = "output";
+	public static final String RESULT_DIR = "results";
 
-    /**
-     * Checks whether environment setup is correct, with a input and output
-     * directory located within the base directory.
-     */
-    public static boolean isEnvironmentSetup() {
-        Path input  = Paths.get(INPUT_DIR);
-        Path output = Paths.get(OUTPUT_DIR);
-        Path result = Paths.get(RESULT_DIR);
+	public static final String[] DEFAULT_ARGS = {"-input", "input/lastfm_subset",
+			"-output", "results/songsByArtistSubset.txt",
+			"-order", "artist"};
 
-        try {
-            if(!Files.exists(result)) {
-            	Files.createDirectories(result);	
-            }        	
-        }
-        catch (Exception e) {
-            return false;
-        }
 
-        return Files.isReadable(input)  && Files.isReadable(output) && Files.isWritable(result);
-    }
+	/**
+	 * Checks whether environment setup is correct, with a input and output
+	 * directory located within the base directory.
+	 */
+	public static boolean isEnvironmentSetup() {
+		Path input  = Paths.get(INPUT_DIR);
+		Path output = Paths.get(OUTPUT_DIR);
+		Path result = Paths.get(RESULT_DIR);
 
-    /**
-     * Checks line-by-line if two files are equal. If one file contains extra
-     * blank lines at the end of the file, the two are still considered equal.
-     *
-     * @param path1 - path to first file to compare with
-     * @param path2 - path to second file to compare with
-     * @return positive value if two files are equal, negative value if not
-     *
-     * @throws IOException
-     */
-    public static int checkFiles(Path path1, Path path2) throws IOException {
-        Charset charset = java.nio.charset.StandardCharsets.UTF_8;
+		try {
+			if(!Files.exists(result)) {
+				Files.createDirectories(result);	
+			}        	
+		}
+		catch (Exception e) {
+			return false;
+		}
 
-        // used to output line mismatch
-        int count = 0;
+		return Files.isReadable(input)  && Files.isReadable(output) && Files.isWritable(result);
+	}
 
-        try (
-            BufferedReader reader1 =
-                    Files.newBufferedReader(path1, charset);
-            BufferedReader reader2 =
-                    Files.newBufferedReader(path2, charset);
-        ) {
-            String line1 = reader1.readLine();
-            String line2 = reader2.readLine();
+	/**
+	 * Checks line-by-line if two files are equal. If one file contains extra
+	 * blank lines at the end of the file, the two are still considered equal.
+	 *
+	 * @param path1 - path to first file to compare with
+	 * @param path2 - path to second file to compare with
+	 * @return positive value if two files are equal, negative value if not
+	 *
+	 * @throws IOException
+	 */
+	public static int checkFiles(Path path1, Path path2) throws IOException {
+		Charset charset = java.nio.charset.StandardCharsets.UTF_8;
 
-            while (true) {
-                count++;
+		// used to output line mismatch
+		int count = 0;
 
-                // compare lines until we hit a null (i.e. end of file)
-                if ((line1 != null) && (line2 != null)) {
-                    // use consistent path separators
-                    line1 = line1.replaceAll(Matcher.quoteReplacement(File.separator), "/");
-                    line2 = line2.replaceAll(Matcher.quoteReplacement(File.separator), "/");
+		try (
+				BufferedReader reader1 =
+				Files.newBufferedReader(path1, charset);
+				BufferedReader reader2 =
+						Files.newBufferedReader(path2, charset);
+				) {
+			String line1 = reader1.readLine();
+			String line2 = reader2.readLine();
 
-                    // remove trailing spaces
-                    line1 = line1.trim();
-                    line2 = line2.trim();
+			while (true) {
+				count++;
 
-                    // check if lines are equal
-                    if (!line1.equals(line2)) {
-                        return -count;
-                    }
+				// compare lines until we hit a null (i.e. end of file)
+				if ((line1 != null) && (line2 != null)) {
+					// use consistent path separators
+					line1 = line1.replaceAll(Matcher.quoteReplacement(File.separator), "/");
+					line2 = line2.replaceAll(Matcher.quoteReplacement(File.separator), "/");
 
-                    // read next lines if we get this far
-                    line1 = reader1.readLine();
-                    line2 = reader2.readLine();
-                }
-                else {
-                    // discard extra blank lines at end of reader1
-                    while ((line1 != null) && line1.trim().isEmpty()) {
-                        line1 = reader1.readLine();
-                    }
+					// remove trailing spaces
+					line1 = line1.trim();
+					line2 = line2.trim();
 
-                    // discard extra blank lines at end of reader2
-                    while ((line2 != null) && line2.trim().isEmpty()) {
-                        line2 = reader2.readLine();
-                    }
+					// check if lines are equal
+					if (!line1.equals(line2)) {
+						return -count;
+					}
 
-                    if (line1 == line2) {
-                        // only true if both are null, otherwise one file had
-                        // extra non-empty lines
-                        return count;
-                    }
-                    else {
-                        // extra blank lines found in one file
-                        return -count;
-                    }
-                }
-            }
-        }
-    }
+					// read next lines if we get this far
+					line1 = reader1.readLine();
+					line2 = reader2.readLine();
+				}
+				else {
+					// discard extra blank lines at end of reader1
+					while ((line1 != null) && line1.trim().isEmpty()) {
+						line1 = reader1.readLine();
+					}
 
-    /**
-     * Checks whether {@link Driver} will run without generating any exceptions.
-     * Will print the stack trace if an exception occurs. Designed to be used
-     * within an unit test.
-     *
-     * @param testName - name of test for debugging
-     * @param args - arguments to pass to {@link Driver}
-     */
-    public static void checkExceptions(String testName, String[] args) {
-        try {
-            Driver.main(args);
-        }
-        catch (Exception e) {
-            StringWriter writer = new StringWriter();
-            e.printStackTrace(new PrintWriter(writer));
+					// discard extra blank lines at end of reader2
+					while ((line2 != null) && line2.trim().isEmpty()) {
+						line2 = reader2.readLine();
+					}
 
-            Assert.fail(String.format(
-                    "%n" + "Test Case: %s%n" + "Exception: %s%n",
-                    testName, writer.toString()));
-        }
-    }
+					if (line1 == line2) {
+						// only true if both are null, otherwise one file had
+						// extra non-empty lines
+						return count;
+					}
+					else {
+						// extra blank lines found in one file
+						return -count;
+					}
+				}
+			}
+		}
+	}
 
-    /**
-     * Checks whether {@link Driver} generates the expected output without any
-     * exceptions. Will print the stack trace if an exception occurs. Designed
-     * to be used within an unit test.
-     *
-     * @param testName - name of test for debugging
-     * @param args - arguments to pass to {@link Driver}
-     * @param actual - name of actual file in result directory
-     * @param expected - name of expected file in output directory
-     */
-    public static void checkProjectOutput(String testName, String[] args,
-            Path actual, Path expected) {
+	/**
+	 * Checks whether {@link Driver} will run without generating any exceptions.
+	 * Will print the stack trace if an exception occurs. Designed to be used
+	 * within an unit test.
+	 *
+	 * @param testName - name of test for debugging
+	 * @param args - arguments to pass to {@link Driver}
+	 */
+	public static void checkExceptions(String testName, String[] args) {
+		try {
+			Driver.main(args);
+		}
+		catch (Exception e) {
+			StringWriter writer = new StringWriter();
+			e.printStackTrace(new PrintWriter(writer));
 
-        try {
-            // Remove actual result file if it already exists
-            Files.deleteIfExists(actual);
+			Assert.fail(String.format(
+					"%n" + "Test Case: %s%n" + "Exception: %s%n",
+					testName, writer.toString()));
+		}
+	}
 
-            // Check if parent directories need to be created
-            if (Files.notExists(actual.getParent())) {
-                Files.createDirectories(actual.getParent());
-            }
+	/**
+	 * Checks whether {@link Driver} generates the expected output without any
+	 * exceptions. Will print the stack trace if an exception occurs. Designed
+	 * to be used within an unit test.
+	 *
+	 * @param testName - name of test for debugging
+	 * @param args - arguments to pass to {@link Driver}
+	 * @param actual - name of actual file in result directory
+	 * @param expected - name of expected file in output directory
+	 */
+	public static void checkProjectOutput(String testName, String[] args,
+			Path actual, Path expected) {
 
-            Driver.main(args);
+		try {
+			// Remove actual result file if it already exists
+			Files.deleteIfExists(actual);
 
-            int count = checkFiles(actual, expected);
+			// Check if parent directories need to be created
+			if (Files.notExists(actual.getParent())) {
+				Files.createDirectories(actual.getParent());
+			}
 
-            if (count <= 0) {
-                Assert.fail(String.format("%n" + "Test Case: %s%n" +
-                        " Mismatched Line: %d%n", testName, -count));
-            }
-        }
-        catch (Exception e) {
-            StringWriter writer = new StringWriter();
-            e.printStackTrace(new PrintWriter(writer));
+			Driver.main(args);
 
-            Assert.fail(String.format(
-                    "%n" + "Test Case: %s%n" + "Exception: %s%n",
-                    testName, writer.toString()));
-        }
-    }
-    
+			int count = checkFiles(actual, expected);
 
-    /**
-     * Tests whether environment setup is correct.
-     */
-    @Test
-    public void testEnvironment() {
-        String errorMessage = String.format(
-                "%n" + "Test Case: %s%n" + "%s%n",
-                "Environment Setup",
-                "Check that you have a readable input, result, and output " +
-                "directories in your base directory.");
+			if (count <= 0) {
+				Assert.fail(String.format("%n" + "Test Case: %s%n" +
+						" Mismatched Line: %d%n", testName, -count));
+			}
+		}
+		catch (Exception e) {
+			StringWriter writer = new StringWriter();
+			e.printStackTrace(new PrintWriter(writer));
 
-        Assert.assertTrue(errorMessage, isEnvironmentSetup());
-    }
+			Assert.fail(String.format(
+					"%n" + "Test Case: %s%n" + "Exception: %s%n",
+					testName, writer.toString()));
+		}
+	}
 
-    /**
-     * This test checks if Driver runs without exceptions when given no
-     * arguments.
-     */
-    @Test
-    public void testNoArguments() {
-        checkExceptions("No Arguments", new String[] {});
-    }
 
-    /**
-     * This test checks if Driver runs without exceptions when given bad
-     * arguments.
-     */
-    @Test
-    public void testBadArguments() {
-        checkExceptions("Bad Arguments", new String[] {"hello", "world"});
-    }
+	/**
+	 * Checks whether {@link Driver} generates the expected output without any
+	 * exceptions. Will print the stack trace if an exception occurs. Designed
+	 * to be used within an unit test.
+	 *
+	 * @param testName - name of test for debugging
+	 * @param args - arguments to pass to {@link Driver}
+	 * @param actual - name of actual file in result directory
+	 * @param expected - name of expected file in output directory
+	 */
+	public static void checkProjectJsonOutput(String testName, String[] args,
+			Path actual, Path expected) {
+
+		try {
+			// Remove actual result file if it already exists
+			Files.deleteIfExists(actual);
+
+			// Check if parent directories need to be created
+			if (Files.notExists(actual.getParent())) {
+				Files.createDirectories(actual.getParent());
+			}
+
+			Driver.main(args);
+
+			JSONParser parser = new JSONParser();
+
+			JSONObject actualObj = (JSONObject) parser.parse(Files.newBufferedReader(actual));
+			JSONObject expectedObj = (JSONObject) parser.parse(Files.newBufferedReader(expected));
+
+			if(!actualObj.equals(expectedObj)) {
+				Assert.fail(String.format("%n" + "Test Case: %s%n" +
+						" JSON result does not match.%n", testName));
+			} 
+		}
+		catch (Exception e) {
+			StringWriter writer = new StringWriter();
+			e.printStackTrace(new PrintWriter(writer));
+
+			Assert.fail(String.format(
+					"%n" + "Test Case: %s%n" + "Exception: %s%n",
+					testName, writer.toString()));
+		}
+	}
+
+	/**
+	 * Tests whether environment setup is correct.
+	 */
+	@Test
+	public void testEnvironment() {
+		String errorMessage = String.format(
+				"%n" + "Test Case: %s%n" + "%s%n",
+				"Environment Setup",
+				"Check that you have a readable input, result, and output " +
+				"directories in your base directory.");
+
+		Assert.assertTrue(errorMessage, isEnvironmentSetup());
+	}
+
+	/**
+	 * This test checks if Driver runs without exceptions when given no
+	 * arguments.
+	 */
+	@Test
+	public void testNoArguments() {
+		checkExceptions("No Arguments", new String[] {});
+	}
+
+	/**
+	 * This test checks if Driver runs without exceptions when given bad
+	 * arguments.
+	 */
+	@Test
+	public void testBadArguments() {
+		checkExceptions("Bad Arguments", new String[] {"hello", "world"});
+	}
 }
