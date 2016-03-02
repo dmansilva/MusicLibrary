@@ -2,16 +2,16 @@
 import java.util.*;
 
 
-/**
+/*
  * Parses command-line arguments into flag/value pairs for easy access.
  */
 public class ArgumentParser {
 
-	/** Stores arguments in a map, where the key is a flag. */
+	/* Stores arguments in a map, where the key is a flag. */
 	private final Map<String, String> argumentMap;
 	
 
-	/**
+	/*
 	 * Initializes an empty argument map. The method {@link #parseArguments(String[])}
 	 * should eventually be called to populate the map.
 	 * @param flagCount 
@@ -22,7 +22,7 @@ public class ArgumentParser {
 		
 	}
 
-	/**
+	/*
 	 * Initializes the argument map with the provided command-line arguments.
 	 * Uses {@link #parseArguments(String[])} to populate the map.
 	 *
@@ -35,7 +35,7 @@ public class ArgumentParser {
 		parseArguments(args);
 	}
 
-	/**
+	/*
 	 * Iterates through the array of command-line arguments. It makes sure that the command line arguments are greater than 0
 	 * Then I iterate through the args with a for loop. Within the for loop I check if the first statement is a flag calling 
 	 * isFlag method and check if the argument after that is a value using my isValue method. If they are then I check if the 
@@ -90,7 +90,7 @@ public class ArgumentParser {
 	
 	
 
-	/**
+	/*
 	 * Tests if the provided argument is a flag by checking that it starts with
 	 * a "-" dash symbol, and is followed by at least one non-whitespace
 	 * character. For example, "-a" and "-1" are valid flags, but "-" and "- "
@@ -115,7 +115,7 @@ public class ArgumentParser {
 		}
 	}
 
-	/**
+	/*
 	 * Tests if the provided argument is a value by checking that it does not
 	 * start with a "-" dash symbol, and contains at least one non-whitespace
 	 * character. For example, "a" and "1" are valid values, but "-" and " "
@@ -140,7 +140,7 @@ public class ArgumentParser {
 		
 	}
 
-	/**
+	/*
 	 * Returns the number of flags stored.
 	 *
 	 * @return number of flags
@@ -149,6 +149,10 @@ public class ArgumentParser {
 	
 		return argumentMap.size();
 	}
+	
+	/*
+	 * Returns the value of the appropriate key.
+	 */
 
 
 	public String getValue(String flag) {

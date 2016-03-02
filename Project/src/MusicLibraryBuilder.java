@@ -15,11 +15,10 @@ public class MusicLibraryBuilder {
 	/*
 	 * class that traverses the file system (given input path) and 
 	 * builds the library (data structure initialization)
-	 * 
 	 */
-//TODO: instance variables should be private unless there is a good reason to do otherwise!	
-	Path path;
-	MusicLibrary lib;
+	
+	private Path path;
+	private MusicLibrary lib;
 	
 	/*
 	 * Constructor is initializing a path as well as a new MusicLibrary, an instance of the MusicLibrary class
@@ -29,7 +28,7 @@ public class MusicLibraryBuilder {
 	public MusicLibraryBuilder(Path path) {
 		
 		this.path = path;
-		lib = new MusicLibrary(); //TODO: consider using this.lib
+		this.lib = new MusicLibrary(); 
 		
 	}
 	
@@ -59,7 +58,7 @@ public class MusicLibraryBuilder {
 			}
 		}
 		
-		else if (path.toString().endsWith(".json") || path.toString().endsWith(".JSON")) {
+		else if (path.toString().toLowerCase().endsWith(".json")) {
 			
 			this.jsonGetter(path);
 		}
@@ -67,11 +66,9 @@ public class MusicLibraryBuilder {
 	}
 	
 	/*
-	 * My jsonGetter method takes in a valid json file from my traverseParser method. I first create a JSONParser. Then
-	 * I use try with resources to open the file using a BufferedReader. Once I've opened the file I call parser.parse 
-	 * to extract the entire file and cast that into an object called wholeFile. Then I call the wholeFile object to a
-	 * JSONObject. The create an instance of the song class and add the JSONObject into there. Then I call the addSong 
-	 * method passing in the newSong variable on my MusicLibrary instance i called lib.
+	 * My jsonGetter method takes in a valid json file from my traverseParser method and extracts the JSONObject.
+	 * Then passes that JSONObject to the creation of a Song instance object and then passes that Song instance
+	 * to my MusicLibrary by using the addSong method.
 	 */
 	
 	private void jsonGetter(Path path) {

@@ -22,18 +22,18 @@ public class Driver {
 			
 				
 				
-				if (ap.getValue("-order").equals("artist")) {				// if the order flag is artist,
-					ml.outputByArtist(outputPath);							// call my outPutbyArtist method and sending the outPutPath variable 
+			if (ap.getValue("-order").equals("artist")) {				// if the order flag is artist,
+				ml.outputByArtist(outputPath);							// call my outPutbyArtist method and sending the outPutPath variable 
 					
-				}
-				else if (ap.getValue("-order").equals("title")) {			// if the order flag is title,
-					ml.outputByTitle(outputPath);							// call my outPutbyArtist method and sending the outPutPath variable
+			}
+			else if (ap.getValue("-order").equals("title")) {			// if the order flag is title,
+				ml.outputByTitle(outputPath);							// call my outPutbyArtist method and sending the outPutPath variable
 					
-				}
-				else if (ap.getValue("-order").equals("tag")) {				// if the order flag is tag,
-					ml.outputByTag(outputPath);								// call my outPutbyArtist method and sending the outPutPath variable
+			}
+			else if (ap.getValue("-order").equals("tag")) {				// if the order flag is tag,
+				ml.outputByTag(outputPath);								// call my outPutbyArtist method and sending the outPutPath variable
 					
-				}
+			}
 				
 				
 		} catch (InvalidArgumentException e) {

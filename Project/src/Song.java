@@ -34,9 +34,9 @@ public class Song {
 		
 	}
 	
-	/**
+	/*
 	 * Constructor that takes as input a JSONObject as illustrated in the example above and
-	 * constructs a Song object by extract the relevant data by intializing their respective 
+	 * constructs a Song object by extract the relevant data by initializing their respective 
 	 * variables to value in the song.
 	 * @param object
 	 * 
@@ -47,55 +47,73 @@ public class Song {
 		this.artist = (String)object.get("artist");
 		this.trackId = (String)object.get("track_id");
 		this.title = (String)object.get("title");
-//TODO: implement logic to extract the 0th item from each inner array for both similars and tags.		
-		this.similars = (JSONArray)object.get("similars");
-		this.tags = (JSONArray)object.get("tags");
-		
+
+		JSONArray simple = (JSONArray)object.get("similars");
+		this.similars = new ArrayList<String>();
+		for (int i = 0; i < simple.size(); i++) {
+			JSONArray temporary = (JSONArray) simple.get(i);
+			String tempOne = (String) temporary.get(0);
+			similars.add(tempOne);
+		}
+		JSONArray tag = (JSONArray)object.get("tags");	
+		this.tags = new ArrayList<String>();	
+		for (int i = 0; i < tag.size(); i++) {							
+			JSONArray temp = (JSONArray) tag.get(i);				
+			String tempTwo = (String) temp.get(0);					
+			tags.add(tempTwo);	
+			
+		}
+	
 	}
 	
 	
-	/**
+	/*
 	 * Return artist.
 	 * @return
 	 */
+	
 	public String getArtist() {
-		//TODO: complete method
+		
 		return artist;
 	}
 
-	/**
+	/*
 	 * Return track ID.
 	 * @return
 	 */
+	
 	public String getTrackId() {
-		//TODO: complete method
+		
 		return trackId;
 	}
 
-	/**
+	/*
 	 * Return title.
 	 * @return
 	 */
+	
 	public String getTitle() {
-		//TODO: complete method
+		
 		return title;
 	}
 
-	/**
+	/*
 	 * Return a list of the track IDs of all similar tracks.
 	 * @return
 	 */
+	
 	public ArrayList<String> getSimilars() {
-		//TODO: complete method
+		
 		return similars;
 	}
 
-	/**
+	/*
 	 * Return a list of all tags for this track.
 	 * @return
 	 */
+	
 	public ArrayList<String> getTags() {
-		//TODO: complete method
+		
 		return tags;
 	}	
 }
