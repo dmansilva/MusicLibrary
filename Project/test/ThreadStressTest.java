@@ -35,7 +35,7 @@ public class ThreadStressTest {
 		long total = 0;
 		long start = 0;
 
-		String[] args = {"-input", "/Users/srollins/teaching/cs212/lastfm_test",
+		String[] args = {"-input", "input/lastfm_subset",
 				"-output", "results/test.txt",
 				"-order", "artist",
 				"-threads", numThreads};
