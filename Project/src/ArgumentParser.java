@@ -9,6 +9,7 @@ public class ArgumentParser {
 
 	/* Stores arguments in a map, where the key is a flag. */
 	private final Map<String, String> argumentMap;
+	private static String emptyString = "";
 	
 
 	/*
@@ -50,9 +51,24 @@ public class ArgumentParser {
 	 */
 	public void parseArguments(String[] args) throws InvalidArgumentException {
 		if (args.length > 0) {
-			for (int i = 0; i < args.length -1; i = i + 2) {
-				if (isFlag(args[i]) == true && isValue(args[i + 1]) == true) {
+			
+			for (int i = 0; i <= args.length -1; i = i + 2) {
+				
+				if ((isFlag(args[i]) == true && args[i].equals("-threads") && (i == (args.length-1)))) {
 					
+					if (args[i].equals("-threads") && (i == (args.length-1))) {
+
+						argumentMap.put(args[i], emptyString);
+					}
+				}
+				
+				if ((isFlag(args[i]) == true && args[i].equals("-threads") && isFlag(args[i + 1]))) {
+					
+					
+					argumentMap.put(args[i], emptyString);
+				}
+				
+				else if (isFlag(args[i]) == true && isValue(args[i + 1]) == true) {
 					if (args[i].equals("-input")) {
 																
 						argumentMap.put(args[i], args[i + 1]);
@@ -68,6 +84,11 @@ public class ArgumentParser {
 						argumentMap.put(args[i], args[i + 1]);
 					}
 					
+					else if (args[i].equals("-threads")) {
+						
+						argumentMap.put(args[i], args[i + 1]);
+					}
+					
 					else {
 						throw new InvalidArgumentException("Incorrect Command Line Arguments");
 					}
@@ -76,7 +97,7 @@ public class ArgumentParser {
 				
 			}
 			
-			if (numFlags() != 3) { 
+			if (numFlags() != 4) { 
 				
 				throw new InvalidArgumentException("Not correct amount of flags");	
 			}

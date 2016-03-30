@@ -18,17 +18,23 @@ public class MusicLibraryBuilder {
 	 */
 	
 	private Path path;
-	private MusicLibrary lib;
+	private ThreadSafeMusicLibrary lib;
+	private JsonParsing jParse;
+	private WorkQueue workQueue;
+	private int numOfThreads;
 	
 	/*
 	 * Constructor is initializing a path as well as a new MusicLibrary, an instance of the MusicLibrary class
 	 */
 	
 	
-	public MusicLibraryBuilder(Path path) {
+	public MusicLibraryBuilder(Path path, int numOfThreads) {
 		
+		this.numOfThreads = numOfThreads;
 		this.path = path;
-		this.lib = new MusicLibrary(); 
+		this.lib = new ThreadSafeMusicLibrary();  
+		workQueue = new WorkQueue(numOfThreads);
+		
 		
 	}
 	
@@ -42,6 +48,12 @@ public class MusicLibraryBuilder {
 	public void traverseParser() {
 		
 		traverseParser(path);
+		
+		workQueue.shutdown();
+		
+		workQueue.awaitTermination();
+	
+		
 	}
 	
 	public void traverseParser(Path path) {
@@ -60,7 +72,8 @@ public class MusicLibraryBuilder {
 		
 		else if (path.toString().toLowerCase().endsWith(".json")) {
 			
-			this.jsonGetter(path);
+			//this.jsonGetter(path);
+			workQueue.execute(new JsonParsing(path, getMusicLibrary()));
 		}
 		
 	}
@@ -71,32 +84,32 @@ public class MusicLibraryBuilder {
 	 * to my MusicLibrary by using the addSong method.
 	 */
 	
-	private void jsonGetter(Path path) {
-		
-		JSONParser parser = new JSONParser();
-
-		try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
-			
-			Object wholeFile = parser.parse(reader);
-			
-			JSONObject contents = (JSONObject) wholeFile;
-			
-			Song newSong = new Song(contents);
-			
-			lib.addSong(newSong); 
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		} 
-	}
+//	private void jsonGetter(Path path) {
+//		
+//		JSONParser parser = new JSONParser();
+//
+//		try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
+//			
+//			Object wholeFile = parser.parse(reader);
+//			
+//			JSONObject contents = (JSONObject) wholeFile;
+//			
+//			Song newSong = new Song(contents);
+//			
+//			lib.addSong(newSong); 
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		} 
+//	}
 	
 	/*
 	 * I created a getMusicLibrary method so that I can get the MusicLibrary instance I created here in my Driver class
 	 */
 	
-	public MusicLibrary getMusicLibrary() {
+	public ThreadSafeMusicLibrary getMusicLibrary() {
 		return lib;
 	}
 }

@@ -20,9 +20,9 @@ public class MusicLibrary {
 	 * - store each song into the library, (addSong) method, very similar to MusicLibrary.java
 	 */
 	
-	private TreeMap<String, TreeSet<Song>> byArtist;
-	private TreeMap<String, TreeSet<Song>> byTitle;
-	private TreeMap<String, TreeSet<String>> byTag;
+	protected TreeMap<String, TreeSet<Song>> byArtist;
+	protected TreeMap<String, TreeSet<Song>> byTitle;
+	protected TreeMap<String, TreeSet<String>> byTag;
 	
 	public MusicLibrary () {
 		
@@ -96,12 +96,14 @@ public class MusicLibrary {
 	 * checks which treeMap is passed in and outputs accordingly
 	 */
 	
-	public void outputArtistOrTitle(TreeMap<String, TreeSet<Song>> treeMaps, Path path) {
+	private void outputArtistOrTitle(TreeMap<String, TreeSet<Song>> treeMaps, Path path) {
 		
 		try(PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")))) {
+			System.out.println("where u at?");
 			
 			for (String key : treeMaps.navigableKeySet()) {
 				TreeSet<Song> songs = treeMaps.get(key);
+				System.out.println("quiet on the set");
 				
 				java.util.Iterator<Song> itr = songs.iterator();
 				
@@ -109,10 +111,12 @@ public class MusicLibrary {
 					Song eachSong = itr.next();
 					if (treeMaps.equals(byArtist)) {
 						String title = eachSong.getTitle();
+						System.out.println("get there son");
 						writer.println(key + " - " + title);
 					}
 					else if (treeMaps.equals(byTitle)) {
 						String artist = eachSong.getArtist();
+						System.out.println("get there dawg");
 						writer.println(artist + " - " + key);
 					}
 				}
