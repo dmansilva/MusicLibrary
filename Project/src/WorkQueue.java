@@ -76,7 +76,7 @@ public class WorkQueue {
                     r.run();
                 }
                 catch (RuntimeException e) {
-                    // You might want to log something here
+                    
                 	e.printStackTrace();
                 }
             }

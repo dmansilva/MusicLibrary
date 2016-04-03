@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="ThreadTest" project="Project" tests="7" started="7" failures="0" errors="0" ignored="0">
+  <testsuite name="ThreadTest" time="6.17">
+    <testsuite name="ThreadTest.ThreadConfigurationTest" time="3.523">
+      <testcase name="testNumberThreadsNegative" classname="ThreadTest.ThreadConfigurationTest" time="1.714"/>
+      <testcase name="testNumberThreadsString" classname="ThreadTest.ThreadConfigurationTest" time="0.951"/>
+      <testcase name="testNumberThreadsDecimal" classname="ThreadTest.ThreadConfigurationTest" time="0.858"/>
+    </testsuite>
+    <testsuite name="ThreadTest.ThreadOutputTest" time="2.647">
+      <testcase name="testComplexOneThread" classname="ThreadTest.ThreadOutputTest" time="1.384"/>
+      <testcase name="testSimpleTenThreads" classname="ThreadTest.ThreadOutputTest" time="0.005"/>
+      <testcase name="testComplexFiveThreads" classname="ThreadTest.ThreadOutputTest" time="0.687"/>
+      <testcase name="testComplexTenThreads" classname="ThreadTest.ThreadOutputTest" time="0.571"/>
+    </testsuite>
+  </testsuite>
+</testrun>

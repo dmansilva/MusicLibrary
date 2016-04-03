@@ -1,0 +1,48 @@
+import java.nio.file.Path;
+
+
+public class ThreadSafeMusicLibrary extends MusicLibrary {
+	
+	private Lock lock;
+	
+	public ThreadSafeMusicLibrary () {
+		
+		super();
+		this.lock = new Lock();
+		
+	}
+	
+	
+	public void addSong(Song song) {
+		
+		lock.lockWrite();
+		super.addSong(song);
+		lock.unlockWrite();
+		
+	}
+	
+	public void outputByTitle(Path path) {
+		
+		lock.lockWrite();
+		super.outputByTitle(path);
+		lock.unlockWrite();
+		
+	}
+	
+	public void outputByArtist(Path path) {
+		
+		lock.lockWrite();
+		super.outputByArtist(path);
+		lock.unlockWrite();
+		
+	}
+	
+	public void outputByTag(Path path) {
+		
+		lock.lockWrite();
+		super.outputByTag(path);
+		lock.unlockWrite();
+		
+	}
+
+}

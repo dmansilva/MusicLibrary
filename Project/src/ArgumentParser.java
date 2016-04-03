@@ -97,7 +97,7 @@ public class ArgumentParser {
 				
 			}
 			
-			if (numFlags() != 4) { 
+			if (numFlags() < 3 || numFlags() > 4) { 
 				
 				throw new InvalidArgumentException("Not correct amount of flags");	
 			}

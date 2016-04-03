@@ -28,12 +28,10 @@ public class Driver {
 				threadCount = 10;
 			}
 			
-			System.out.println(threadCount);
-			
 			MusicLibraryBuilder mlb = new MusicLibraryBuilder(inputPath, threadCount);   // creating an instance of the MusicLibraryBuilder class and sending the inputPath
-			ThreadSafeMusicLibrary ml = mlb.getMusicLibrary();						// creating an instance of the MusicLibrary class and calling my getMusicLibrary method in order to get the Library already created
+			ThreadSafeMusicLibrary ml = mlb.getMusicLibrary();							// creating an instance of the MusicLibrary class and calling my getMusicLibrary method in order to get the Library already created
 			
-			mlb.traverseParser();											// calling the traverseParser method in order to begin parsing the inputPath
+			mlb.traverseParser();														// calling the traverseParser method in order to begin parsing the inputPath
 			
 			
 				
@@ -54,7 +52,7 @@ public class Driver {
 				
 		} catch (InvalidArgumentException e) {
 			
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println("Incorrect Arguments");
 		}
 		

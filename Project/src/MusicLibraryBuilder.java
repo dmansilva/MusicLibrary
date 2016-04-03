@@ -42,7 +42,8 @@ public class MusicLibraryBuilder {
 	 * Method OverLoading for traverseParser. The first one is just a helper method so that I don't have to pass a
 	 * path variable as a parameter when I call it in my driver. The second traverseParser method takes in a path
 	 * and recursively traverses the path if it a directory until we reach a valid json file. If it a valid json or 
-	 * JSON file I path the file to my jsonGetter method to extract my JSONObject.
+	 * JSON file I path the file to my jsonGetter method to extract my JSONObject. This is also where I call shutdown
+	 * and await termination.
 	 */
 	
 	public void traverseParser() {
@@ -72,38 +73,11 @@ public class MusicLibraryBuilder {
 		
 		else if (path.toString().toLowerCase().endsWith(".json")) {
 			
-			//this.jsonGetter(path);
 			workQueue.execute(new JsonParsing(path, getMusicLibrary()));
 		}
 		
 	}
-	
-	/*
-	 * My jsonGetter method takes in a valid json file from my traverseParser method and extracts the JSONObject.
-	 * Then passes that JSONObject to the creation of a Song instance object and then passes that Song instance
-	 * to my MusicLibrary by using the addSong method.
-	 */
-	
-//	private void jsonGetter(Path path) {
-//		
-//		JSONParser parser = new JSONParser();
-//
-//		try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
-//			
-//			Object wholeFile = parser.parse(reader);
-//			
-//			JSONObject contents = (JSONObject) wholeFile;
-//			
-//			Song newSong = new Song(contents);
-//			
-//			lib.addSong(newSong); 
-//			
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		} 
-//	}
+
 	
 	/*
 	 * I created a getMusicLibrary method so that I can get the MusicLibrary instance I created here in my Driver class

@@ -1,0 +1,19 @@
+
+public class ThreadSafeMusicLibrary extends MusicLibrary {
+	
+	
+	public ThreadSafeMusicLibrary () {
+		
+		super();
+		
+	}
+	
+	
+	public void addSong(Song song) {
+		
+		//lock.writeLock.lock();
+		super.addSong(song);
+		//lock.writeLock.unlock();
+	}
+
+}

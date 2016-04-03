@@ -99,11 +99,10 @@ public class MusicLibrary {
 	private void outputArtistOrTitle(TreeMap<String, TreeSet<Song>> treeMaps, Path path) {
 		
 		try(PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")))) {
-			System.out.println("where u at?");
+			
 			
 			for (String key : treeMaps.navigableKeySet()) {
 				TreeSet<Song> songs = treeMaps.get(key);
-				System.out.println("quiet on the set");
 				
 				java.util.Iterator<Song> itr = songs.iterator();
 				
@@ -111,12 +110,10 @@ public class MusicLibrary {
 					Song eachSong = itr.next();
 					if (treeMaps.equals(byArtist)) {
 						String title = eachSong.getTitle();
-						System.out.println("get there son");
 						writer.println(key + " - " + title);
 					}
 					else if (treeMaps.equals(byTitle)) {
 						String artist = eachSong.getArtist();
-						System.out.println("get there dawg");
 						writer.println(artist + " - " + key);
 					}
 				}

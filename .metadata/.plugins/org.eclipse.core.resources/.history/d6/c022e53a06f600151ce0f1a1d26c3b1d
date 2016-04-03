@@ -1,0 +1,46 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+public class JsonParsing implements Runnable {
+	
+	Path path;
+	
+	public JsonParsing (Path path) {
+		this.path = path;
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		jsonGetter(path);
+	}
+	
+	private void jsonGetter(Path path) {
+			
+			JSONParser parser = new JSONParser();
+	
+			try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
+				
+				Object wholeFile = parser.parse(reader);
+				
+				JSONObject contents = (JSONObject) wholeFile;
+				
+				Song newSong = new Song(contents);
+				
+				//lib.addSong(newSong);     make an instance of ThreadSafeMusicLibrary and call it? or have MusicLibraryBuilder do this?
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} 
+		}
+
+}

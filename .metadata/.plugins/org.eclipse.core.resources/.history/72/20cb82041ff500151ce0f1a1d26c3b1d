@@ -1,0 +1,33 @@
+import java.nio.file.Path;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+public class ThreadSafeMusicLibrary extends MusicLibrary {
+	
+	private Lock lock;
+	
+	public ThreadSafeMusicLibrary () {
+		
+		super();
+		this.lock = new Lock();
+		
+	}
+	
+	
+	public void addSong(Song song) {
+		
+		lock.lockWrite();
+		super.addSong(song);
+		lock.unlockWrite();
+		
+	}
+	
+	public void outputArtistOrTitle() {
+		
+		super.outputArtistOrTitle(treeMaps, path);();
+	}
+	
+	
+	
+
+}
