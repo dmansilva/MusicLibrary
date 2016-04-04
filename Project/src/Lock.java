@@ -81,7 +81,7 @@ public class Lock {
 	 * @return
 	 */	
 	public synchronized boolean tryLockWrite() {
-		
+// a thread could get a write lock if there are no other thread holding a read lock
 		
 		if ((!hasRead() && !hasWrite()) || hasWrite()) {
 			if (this.numOfWriters.get(Thread.currentThread().getId()) == null) {
