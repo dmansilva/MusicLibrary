@@ -10,6 +10,7 @@ import org.json.simple.parser.ParseException;
 
 public class JsonParsing implements Runnable {
 	
+//TODO: variables should be private!	
 	Path path;
 	ThreadSafeMusicLibrary lib;
 	
