@@ -4,6 +4,7 @@ public class WorkQueue {
 	
 	volatile boolean shutdown = false;
 	
+	
 	private int nThreads;
 	private PoolWorker[] threads;
 	private LinkedList queue;
@@ -23,10 +24,16 @@ public class WorkQueue {
 	
 	public void execute (Runnable r) {
 // no new runnable when shut down
-		synchronized(queue) {
-			queue.addLast(r);
-			queue.notify();
+		if (shutdown == true) {
+			return;
 		}
+		else {
+			synchronized(queue) {
+				queue.addLast(r);
+				queue.notify();
+			}
+		}
+		
 	}
 	
 	public void shutdown () {
