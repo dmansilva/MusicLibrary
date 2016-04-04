@@ -1,7 +1,8 @@
 import java.util.LinkedList;
 
 public class WorkQueue {
-	
+
+//TODO: instance variables should be private!	
 	volatile boolean shutdown = false;
 	
 	
@@ -23,8 +24,9 @@ public class WorkQueue {
 	}
 	
 	public void execute (Runnable r) {
-														
-		if (shutdown == true) {
+	
+//TODO: fix so you don't need an else														
+		if (shutdown == true) { //TODO: do not need == true
 			return;
 		}
 		else {
@@ -37,6 +39,9 @@ public class WorkQueue {
 	}
 	
 	public void shutdown () {
+		
+//TODO: shutdown does not need to be in synchronized block.
+
 		synchronized(queue) {
 			queue.notifyAll();
 			shutdown = true;
