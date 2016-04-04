@@ -12,9 +12,9 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 		
 	}
 
-//TODO: remove synchronized	
+
 	
-	public synchronized void addSong(Song song) {
+	public void addSong(Song song) {
 		
 		lock.lockWrite();
 		super.addSong(song);
@@ -24,7 +24,7 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 	
 	// @Override
 	
-	public synchronized void outputByTitle(Path path) {
+	public void outputByTitle(Path path) {
 		
 		lock.lockRead();
 		super.outputByTitle(path);
@@ -34,7 +34,7 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 	
 	// @Override
 	
-	public synchronized void outputByArtist(Path path) {
+	public void outputByArtist(Path path) {
 		
 		lock.lockRead();
 		super.outputByArtist(path);
@@ -44,7 +44,7 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 	
 	// @Override
 	
-	public synchronized void outputByTag(Path path) {
+	public void outputByTag(Path path) {
 		
 		lock.lockRead();
 		super.outputByTag(path);

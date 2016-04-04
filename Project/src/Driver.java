@@ -52,7 +52,6 @@ public class Driver {
 				
 		} catch (InvalidArgumentException e) {
 			
-			//e.printStackTrace();
 			System.out.println("Incorrect Arguments");
 		}
 		

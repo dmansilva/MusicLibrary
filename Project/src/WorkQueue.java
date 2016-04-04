@@ -1,9 +1,8 @@
 import java.util.LinkedList;
 
 public class WorkQueue {
-
-//TODO: instance variables should be private!	
-	volatile boolean shutdown = false;
+	
+	private volatile boolean shutdown = false;
 	
 	
 	private int nThreads;
@@ -24,12 +23,8 @@ public class WorkQueue {
 	}
 	
 	public void execute (Runnable r) {
-	
-//TODO: fix so you don't need an else														
-		if (shutdown == true) { //TODO: do not need == true
-			return;
-		}
-		else {
+						
+		if (!shutdown) {
 			synchronized(queue) {
 				queue.addLast(r);
 				queue.notify();
@@ -40,11 +35,10 @@ public class WorkQueue {
 	
 	public void shutdown () {
 		
-//TODO: shutdown does not need to be in synchronized block.
+		shutdown = true;
 
 		synchronized(queue) {
 			queue.notifyAll();
-			shutdown = true;
 		}
 	}
 	

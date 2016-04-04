@@ -8,7 +8,7 @@ import java.util.HashMap;
  */
 public class Lock {
 
-	//Declare data members here!
+	
 	private HashMap<Long, Integer> numOfReaders;
 	private HashMap<Long, Integer> numOfWriters;
 	
@@ -31,8 +31,8 @@ public class Lock {
 	 */
 	public synchronized boolean hasRead() {
 		
-//TODO: revise condition		
-		if (this.numOfReaders.containsKey(Thread.currentThread().getId()) && this.numOfReaders.get(Thread.currentThread().getId()) > 0) {
+		
+		if (this.numOfReaders.containsKey(Thread.currentThread().getId())) {
 			return true;
 		}
 		return false;
@@ -44,8 +44,8 @@ public class Lock {
 	 */
 	public synchronized boolean hasWrite() {
 		
-//TODO: revise condition		
-		if (this.numOfWriters.containsKey(Thread.currentThread().getId()) && this.numOfWriters.get(Thread.currentThread().getId()) > 0) {
+		
+		if (this.numOfWriters.containsKey(Thread.currentThread().getId())) {
 			return true;
 		}
 		return false;
@@ -58,17 +58,17 @@ public class Lock {
 	 */
 	public synchronized boolean tryLockRead() {
 		
-		if ((this.numOfWriters.size() == 0) || this.numOfWriters.size() >= 1 && this.numOfWriters.containsKey(Thread.currentThread().getId())) {
-		
-//TODO: you are granting two locks the first time around		
+		if ((this.numOfWriters.size() == 0) || (this.numOfWriters.size() >= 1 && this.numOfWriters.containsKey(Thread.currentThread().getId()))) {
+				
 			if (this.numOfReaders.get(Thread.currentThread().getId()) == null) {
 				int value = 1;
 				this.numOfReaders.put(Thread.currentThread().getId(), value);
 			}
-		
-			int value = this.numOfReaders.get(Thread.currentThread().getId());
-			value++;
-			this.numOfReaders.put(Thread.currentThread().getId(), value);
+			else {
+				int value = this.numOfReaders.get(Thread.currentThread().getId());
+				value++;
+				this.numOfReaders.put(Thread.currentThread().getId(), value);
+			}
 			return true;
 		}
 		
@@ -82,22 +82,18 @@ public class Lock {
 	 * @return
 	 */	
 	public synchronized boolean tryLockWrite() {
-// a thread could get a write lock if there are no other thread holding a read lock
-<<<<<<< Updated upstream
 
-//TODO: hasRead and hasWrite only check to see whether the calling thread has the read/write lock		
-=======
-		// this.numOfReaders.size != 0 && this.numOfWriters.size !=0 || hasWrite and the thread is me
->>>>>>> Stashed changes
-		if ((!hasRead() && !hasWrite()) || hasWrite()) {
+		if ((this.numOfReaders.size() == 0 && this.numOfWriters.size() == 0) || (this.numOfWriters.size() >= 1 && this.numOfWriters.containsKey(Thread.currentThread().getId()))) {
+			
 			if (this.numOfWriters.get(Thread.currentThread().getId()) == null) {
 				int value = 1;
 				this.numOfWriters.put(Thread.currentThread().getId(), value);
 			}
-			
-			int value = this.numOfWriters.get(Thread.currentThread().getId());
-			value++;
-			this.numOfWriters.put(Thread.currentThread().getId(), value);
+			else {
+				int value = this.numOfWriters.get(Thread.currentThread().getId());
+				value++;
+				this.numOfWriters.put(Thread.currentThread().getId(), value);
+			}
 			return true;
 		}
 		
@@ -138,11 +134,9 @@ public class Lock {
 				value--;
 				this.numOfReaders.put(Thread.currentThread().getId(), value);
 				
-			}
-
-//TODO: use else		
+			}		
 			
-			if (value == 1) {
+			else {
 				this.numOfReaders.remove(Thread.currentThread().getId());
 				
 				notifyAll();
@@ -178,15 +172,18 @@ public class Lock {
 	 */
 	public synchronized void unlockWrite() {
 		
-//TODO: check to see if you are a writer		
-		int value = this.numOfWriters.get(Thread.currentThread().getId());
-		value--;
-		this.numOfWriters.put(Thread.currentThread().getId(), value);
-		
-		if (value == 1) {
-			this.numOfWriters.remove(Thread.currentThread().getId());
-			notifyAll();
+		if (hasWrite()) {
+			int value = this.numOfWriters.get(Thread.currentThread().getId());
+			if (value > 1) {
+				value--;
+				this.numOfWriters.put(Thread.currentThread().getId(), value);
+			}
+			else {
+				this.numOfWriters.remove(Thread.currentThread().getId());
+				notifyAll();
+			}
 		}
+		
 		
 	}
 }
