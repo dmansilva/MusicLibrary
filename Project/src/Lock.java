@@ -31,7 +31,7 @@ public class Lock {
 	 */
 	public synchronized boolean hasRead() {
 		
-		
+//TODO: revise condition		
 		if (this.numOfReaders.containsKey(Thread.currentThread().getId()) && this.numOfReaders.get(Thread.currentThread().getId()) > 0) {
 			return true;
 		}
@@ -44,7 +44,7 @@ public class Lock {
 	 */
 	public synchronized boolean hasWrite() {
 		
-		
+//TODO: revise condition		
 		if (this.numOfWriters.containsKey(Thread.currentThread().getId()) && this.numOfWriters.get(Thread.currentThread().getId()) > 0) {
 			return true;
 		}
@@ -60,6 +60,7 @@ public class Lock {
 		
 		if ((this.numOfWriters.size() == 0) || this.numOfWriters.size() >= 1 && this.numOfWriters.containsKey(Thread.currentThread().getId())) {
 		
+//TODO: you are granting two locks the first time around		
 			if (this.numOfReaders.get(Thread.currentThread().getId()) == null) {
 				int value = 1;
 				this.numOfReaders.put(Thread.currentThread().getId(), value);
@@ -82,7 +83,8 @@ public class Lock {
 	 */	
 	public synchronized boolean tryLockWrite() {
 // a thread could get a write lock if there are no other thread holding a read lock
-		
+
+//TODO: hasRead and hasWrite only check to see whether the calling thread has the read/write lock		
 		if ((!hasRead() && !hasWrite()) || hasWrite()) {
 			if (this.numOfWriters.get(Thread.currentThread().getId()) == null) {
 				int value = 1;
@@ -134,7 +136,7 @@ public class Lock {
 				
 			}
 
-		
+//TODO: use else		
 			
 			if (value == 1) {
 				this.numOfReaders.remove(Thread.currentThread().getId());
@@ -172,7 +174,7 @@ public class Lock {
 	 */
 	public synchronized void unlockWrite() {
 		
-		
+//TODO: check to see if you are a writer		
 		int value = this.numOfWriters.get(Thread.currentThread().getId());
 		value--;
 		this.numOfWriters.put(Thread.currentThread().getId(), value);
