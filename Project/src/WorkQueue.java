@@ -22,6 +22,7 @@ public class WorkQueue {
 	}
 	
 	public void execute (Runnable r) {
+// no new runnable when shut down
 		synchronized(queue) {
 			queue.addLast(r);
 			queue.notify();
