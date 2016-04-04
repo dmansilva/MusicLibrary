@@ -11,7 +11,8 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 		this.lock = new Lock();
 		
 	}
-	
+
+//TODO: remove synchronized	
 	
 	public synchronized void addSong(Song song) {
 		
