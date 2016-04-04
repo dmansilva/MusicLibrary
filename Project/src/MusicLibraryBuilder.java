@@ -19,6 +19,7 @@ public class MusicLibraryBuilder {
 	
 	private Path path;
 	private ThreadSafeMusicLibrary lib;
+//TODO: double check code before submission.	
 	private JsonParsing jParse;
 	private WorkQueue workQueue;
 	private int numOfThreads;
