@@ -23,7 +23,7 @@ public class WorkQueue {
 	}
 	
 	public void execute (Runnable r) {
-// no new runnable when shut down
+														
 		if (shutdown == true) {
 			return;
 		}
