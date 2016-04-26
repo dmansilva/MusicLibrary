@@ -3,10 +3,12 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 
 
@@ -23,13 +25,16 @@ public class MusicLibrary {
 	protected TreeMap<String, TreeSet<Song>> byArtist;
 	protected TreeMap<String, TreeSet<Song>> byTitle;
 	protected TreeMap<String, TreeSet<String>> byTag;
+	protected TreeMap<String, TreeSet<Song>> byTags;
+	protected TreeMap<String, Song> uniqueTrackId;
 	
 	public MusicLibrary () {
 		
 		this.byArtist = new TreeMap<>();
 		this.byTitle = new TreeMap<>();
 		this.byTag = new TreeMap<>();
-		
+		this.byTags = new TreeMap<>();
+		this.uniqueTrackId = new TreeMap<>();
 		
 	}
 	
@@ -55,7 +60,9 @@ public class MusicLibrary {
 		
 		this.byTitle.get(title_check).add(song);
 		
-		// adding Songs by their tag
+		// adding Songs by their trackId
+		
+		this.uniqueTrackId.put(song.getTrackId(), song);
 		
 
 		for (int i = 0; i < song.getTags().size(); i++) {
@@ -65,6 +72,15 @@ public class MusicLibrary {
 			} else { 													
 				this.byTag.get(song.getTags().get(i)).add(song.getTrackId());	
 			}
+			
+			if (!this.byTags.containsKey(song.getTags().get(i))) {
+				this.byTags.put(song.getTags().get(i), new TreeSet<Song>(new ByTagsComparator()));
+				this.byTags.get(song.getTags().get(i)).add(song);
+			}
+			else {
+				this.byTags.get(song.getTags().get(i)).add(song);
+			}
+			
 		}
 		
 	}
@@ -125,6 +141,7 @@ public class MusicLibrary {
 		}
 	}
 	
+	
 	/*
 	 * outputByTag takes in the output path and outputs properly to that specified path using a printWriter 
 	 * for the byTag.
@@ -152,5 +169,158 @@ public class MusicLibrary {
 			System.out.println("Invalid Output path");
 		}
 	}
+	
+	/*
+	 * jSonOutput method takes in JSONObject that was extracted from the searchInput. 
+	 * It return the JSONObject with the content and in the format you want for your output file.
+	 */
+	
+	public JSONObject jSonOutput(JSONObject input) {
+		
+		JSONObject obj = new JSONObject();
+		
+		if (input.containsKey("searchByArtist")) {
+			JSONArray valueAllArtists = new JSONArray();
+			JSONArray allArtist = (JSONArray) input.get("searchByArtist");
+			for (int i = 0; i < allArtist.size(); i++) {
+				if (this.byArtist.containsKey(allArtist.get(i))) {
+					JSONObject eachArtist = new JSONObject();
+					eachArtist.put("artist", allArtist.get(i));
+					eachArtist.put("similars", searchByArtist((String) allArtist.get(i)));
+					valueAllArtists.add(eachArtist);
+				}
+				else {
+					JSONObject eachArtist = new JSONObject();
+					eachArtist.put("artist", allArtist.get(i));
+					eachArtist.put("similars", new JSONArray());
+					valueAllArtists.add(eachArtist);
+				}
+			}
+			
+			obj.put("searchByArtist", valueAllArtists);
+		}
+		
+		if (input.containsKey("searchByTitle")) {
+			JSONArray valueAllTitle = new JSONArray();
+			JSONArray allTitle = (JSONArray) input.get("searchByTitle");
+			for (int i = 0; i < allTitle.size(); i++) {
+				if (this.byTitle.containsKey(allTitle.get(i))) {
+					JSONObject eachTitle = new JSONObject();
+					eachTitle.put("similars", searchByTitle((String) allTitle.get(i)));
+					eachTitle.put("title", allTitle.get(i));
+					valueAllTitle.add(eachTitle);
+				}
+				else {
+					JSONObject eachTitle = new JSONObject();
+					eachTitle.put("similars", new JSONArray());
+					eachTitle.put("title", allTitle.get(i));
+					valueAllTitle.add(eachTitle);
+				}
+			}
+			
+			obj.put("searchByTitle", valueAllTitle);
+		}
+		
+		if (input.containsKey("searchByTag")) {
+			JSONArray valueAllTag = new JSONArray();
+			JSONArray allTag = (JSONArray) input.get("searchByTag");
+			for (int i = 0; i < allTag.size(); i++) {
+				if (this.byTag.containsKey(allTag.get(i))) {
+					JSONObject eachTag = new JSONObject();
+					eachTag.put("similars", searchByTag((String) allTag.get(i)));
+					eachTag.put("tag", allTag.get(i));
+					valueAllTag.add(eachTag);
+				}
+				else {
+					JSONObject eachTag = new JSONObject();
+					eachTag.put("similars", new JSONArray());
+					eachTag.put("tag", allTag.get(i));
+					valueAllTag.add(eachTag);
+				}
+			}
+			
+			obj.put("searchByTag", valueAllTag);
+		}
+		return obj;
+	}
+	
+	/*
+	 * searchByArtist method takes in a string that is the artist we would like to search by.
+	 * We then output a JSONArray of the similar songs to that artist using the toJson method
+	 * from the Song class.
+	 */
+	
+	public JSONArray searchByArtist(String artist) {
+			
+		JSONArray valueInJSON = new JSONArray();
+
+		if (this.byArtist.get(artist) != null) {
+			TreeSet<Song> songs = this.byArtist.get(artist);
+			TreeSet<Song> temp = new TreeSet<Song>(new IDComparator());
+			for (Song song : songs) {
+				ArrayList<String> similarList = song.getSimilars();
+				if (similarList.size() > 0) {
+					for (String similarSong : similarList) {
+						if (uniqueTrackId.containsKey(similarSong)) {
+							temp.add(this.uniqueTrackId.get(similarSong));
+						}
+					}
+				}
+			}
+			for (Song eachSim : temp) {
+				valueInJSON.add(eachSim.toJson());
+			}
+			return valueInJSON;
+		}
+		else {
+			return null;
+		}
+		
+	}
+	
+	public JSONArray searchByTitle(String title) {
+		
+		JSONArray valueInJSON = new JSONArray();
+		
+		if (this.byTitle.get(title) != null) {
+			TreeSet<Song> songs = this.byTitle.get(title);
+			TreeSet<Song> temp = new TreeSet<Song>(new IDComparator());
+			for (Song song : songs) {
+				ArrayList<String> similarList = song.getSimilars();
+				if (similarList.size() > 0) {
+					for (String similarSong : similarList) {
+						if (uniqueTrackId.containsKey(similarSong)) {
+							temp.add(this.uniqueTrackId.get(similarSong));
+						}
+					}
+				}
+			}
+			
+			for (Song eachSim : temp) {
+				valueInJSON.add(eachSim.toJson());
+			}
+			
+			return valueInJSON;
+		}
+		else {
+			return null;
+		}
+		
+	}
+	
+	public JSONArray searchByTag(String tag) {
+		
+		JSONArray valueInJSON = new JSONArray();
+		
+		TreeSet<Song> songs = this.byTags.get(tag);
+		
+		for (Song song : songs) {
+			
+			valueInJSON.add(song.toJson());
+		}
+		
+		return valueInJSON;
+	}
+	
 
 }

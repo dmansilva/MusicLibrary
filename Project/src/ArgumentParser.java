@@ -85,6 +85,16 @@ public class ArgumentParser {
 					}
 					
 					else if (args[i].equals("-threads")) {
+	
+						argumentMap.put(args[i], args[i + 1]);
+					}
+					
+					else if (args[i].equals("-searchInput")) {
+						
+						argumentMap.put(args[i], args[i + 1]);
+					}
+					
+					else if (args[i].equals("-searchOutput")) {
 						
 						argumentMap.put(args[i], args[i + 1]);
 					}
@@ -97,7 +107,7 @@ public class ArgumentParser {
 				
 			}
 			
-			if (numFlags() < 3 || numFlags() > 4) { 
+			if (numFlags() < 3 || numFlags() > 6) { 
 				
 				throw new InvalidArgumentException("Not correct amount of flags");	
 			}

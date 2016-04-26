@@ -66,6 +66,16 @@ public class Song {
 	
 	}
 	
+	public JSONObject toJson() {
+		
+		JSONObject jSonFormat = new JSONObject();
+		jSonFormat.put("artist", artist);
+		jSonFormat.put("trackId", trackId);
+		jSonFormat.put("title", title);
+		
+		return jSonFormat;
+	}
+	
 	
 	/*
 	 * Return artist.

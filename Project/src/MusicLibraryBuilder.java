@@ -37,6 +37,13 @@ public class MusicLibraryBuilder {
 		
 	}
 	
+	public MusicLibraryBuilder(Path path) {
+		
+		this.path = path;
+		this.lib = new ThreadSafeMusicLibrary(); 
+		
+	}
+	
 	/*
 	 * Method OverLoading for traverseParser. The first one is just a helper method so that I don't have to pass a
 	 * path variable as a parameter when I call it in my driver. The second traverseParser method takes in a path
