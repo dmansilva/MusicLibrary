@@ -7,6 +7,8 @@ import java.io.StringWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import main.Driver;
+
 /**
  * Adapted from sjengle.
  * @author srollins
