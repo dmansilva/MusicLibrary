@@ -1,0 +1,47 @@
+package main;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+public class SearchQuery {
+	
+	Path searchInputPath;
+	String searchOutputPath;
+	JSONObject obj;
+	
+	public SearchQuery(Path searchInputPath, String searchOutputPath, JSONObject obj) {
+		
+		this.searchInputPath = searchInputPath;
+		this.searchOutputPath = searchOutputPath;
+		this.obj = obj;
+		
+	}
+	
+	public void inputQuery(Path inputPath) {
+		
+		if (searchInputPath.toString().toLowerCase().endsWith(".json")) {
+			JSONParser parser = new JSONParser();
+			try (BufferedReader reader = Files.newBufferedReader(searchInputPath, Charset.forName("UTF-8"))) {
+				
+				Object wholeFile = parser.parse(reader);
+				JSONObject contents = (JSONObject) wholeFile;
+				
+				//obj = ml.jSonOutput(contents);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
+}

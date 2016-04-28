@@ -1,0 +1,124 @@
+package server;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import main.Song;
+import main.ThreadSafeMusicLibrary;
+
+public class SearchServlet extends BaseServlet {
+	
+	
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * GET /search returns a web page containing a search box where a student's name may be entered.
+	 */
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// create responseHtml
+		
+		String responseHtml = "<html" + 
+									"<head><title>Song Finder</title></head>" + 
+									"<body>" +
+									"Welcome to Song Finder! Search for an artist, song title, or tag and we will give you a list of similar songs you might like. Enjoy!<br/>" +
+									"<form action=\"search\" method=\"post\">" +
+									"Search Type: " +
+									"<select name =\"type\">" +
+									"<option value=\"artist\">artist</option>" +
+									"<option value=\"title\">title</option>" +
+									"<option value=\"tag\">tag</option>" + 
+									"</select>" +
+									"Query: " +
+									"<input type=\"text\" name=\"student\">" +
+									"<input type=\"submit\" value=\"Submit\"><br/>" +
+									"</form>" +
+									"</body>" +
+									"</html>"; 
+		
+		
+//		"<div class=\"dropdown\">" + 
+//		"<button onclick=\"myFunction()\" class=\"dropbtn\">Search Type</button>" +
+//		"<div id=\"myDropdown\" class=\"dropdown-content\">" +
+//		"<a href=\"#\">artist</a> " + 
+//		"<a href=\"#\">title</a> " +
+//		"<a href=\"#\">tag</a> " +
+//		"</div>"
+		
+		
+		
+		PrintWriter writer = prepareResponse(response);
+		writer.println(responseHtml);
+	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//create responseHtml
+		
+		String student = request.getParameter("student");
+		String type = request.getParameter("type");
+		System.out.println(type);
+		System.out.println(student);
+		
+		
+		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) request.getServletContext().getAttribute("musiclibrary");
+		JSONArray result = new JSONArray();
+		
+		if (type.equals("Artist")) {
+			result = tsml.searchByArtist(student);
+		}
+		else if (type.equals("Title")) {
+			result = tsml.searchByTitle(student);
+		}
+		else if (type.equals("Tag")) {
+			result = tsml.searchByTag(student);
+		}
+		
+		String responseHtmlHead = "<html" + 
+				"<head><title>Song Finder</title></head>" +
+				"<body>";
+		String responseHtmlContent = "";
+		if(result != null) {
+			String responseTable = "<table border=\"2px\" width=\"100%\">" +				
+					"<tr><td><strong>Artist</strong></td><td><strong>Song Title</strong></td></tr>";
+			responseHtmlContent += responseTable;
+			for (int i = 0; i<result.size(); i++) {
+				Song simSongs = (Song) result.get(i);
+				String responseTemp = "<tr><td>" + simSongs.getArtist() + "</td><td>" + simSongs.getTitle() + "</td></tr>";
+				responseHtmlContent += responseTemp;
+				
+			}
+			
+			String endTable = "</table>";
+			responseHtmlContent += endTable;
+		
+		} else {
+			responseHtmlContent = "Student: " + student + " not found!";
+		}
+		
+		String responseEnder = 	"Welcome to Song Finder! Search for an artist, song title, or tag and we will give you a list of similar songs you might like. Enjoy!<br/>" +
+				
+									"<form action=\"search\" method=\"post\">" +	
+									"Search Type: " +
+									"<select name = \"type\">" +
+									"<option value=\"artist\">artist</option>" +
+									"<option value=\"title\">title</option>" +
+									"<option value=\"tag\">tag</option>" + 
+									"</select>" + 
+									"Query: " +
+									"<input type=\"text\" name=\"student\">" +
+									"<input type=\"submit\" value=\"Submit\"><br/>" +
+									"</form>" +
+									"</body>" +
+									"</html>";
+		 
+		String responseHtml = responseHtmlHead + responseHtmlContent + responseEnder;
+		PrintWriter writer = prepareResponse(response);
+		writer.println(responseHtml);
+	}
+
+}
