@@ -1,15 +1,20 @@
+package main;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import comparators.ByArtistComparator;
+import comparators.ByTagsComparator;
+import comparators.ByTitleComparator;
+import comparators.IDComparator;
 
 
 
@@ -36,7 +41,6 @@ public class MusicLibrary {
 		this.byTag = new TreeMap<>();
 		this.byTags = new TreeMap<>();
 		this.uniqueTrackId = new TreeMap<>();
-		
 		
 	}
 	
@@ -76,7 +80,7 @@ public class MusicLibrary {
 			}
 			
 			if (!this.byTags.containsKey(song.getTags().get(i))) {
-				this.byTags.put(song.getTags().get(i), new TreeSet<Song>());
+				this.byTags.put(song.getTags().get(i), new TreeSet<Song>(new ByTagsComparator()));
 				this.byTags.get(song.getTags().get(i)).add(song);
 			}
 			else {
@@ -173,62 +177,6 @@ public class MusicLibrary {
 	}
 	
 	/*
-	 * jSonOutput method takes in JSONObject that was extracted from the searchInput. 
-	 * It return the JSONObject with the content and in the format you want for your output file.
-	 */
-	
-	public JSONObject jSonOutput(JSONObject input) {
-		
-		JSONObject obj = new JSONObject();
-		
-		if (input.containsKey("searchByArtist")) {
-			JSONArray valueAllArtists = new JSONArray();
-			JSONArray allArtist = (JSONArray) input.get("searchByArtist");
-			for (int i = 0; i < allArtist.size(); i++) {
-				if (this.byArtist.containsKey(allArtist.get(i))) {
-					JSONObject eachArtist = new JSONObject();
-					eachArtist.put("artist", allArtist.get(i));
-					eachArtist.put("similars", searchByArtist((String) allArtist.get(i)));
-					valueAllArtists.add(eachArtist);
-				}
-			}
-			
-			obj.put("searchByArtist", valueAllArtists);
-		}
-		
-		if (input.containsKey("searchByTitle")) {
-			JSONArray valueAllTitle = new JSONArray();
-			JSONArray allTitle = (JSONArray) input.get("searchByTitle");
-			for (int i = 0; i < allTitle.size(); i++) {
-				if (this.byTitle.containsKey(allTitle.get(i))) {
-					JSONObject eachTitle = new JSONObject();
-					eachTitle.put("similars", searchByArtist((String) allTitle.get(i)));
-					eachTitle.put("title", allTitle.get(i));
-					valueAllTitle.add(eachTitle);
-				}
-			}
-			
-			obj.put("searchByTitle", valueAllTitle);
-		}
-		
-		if (input.containsKey("searchByTag")) {
-			JSONArray valueAllTag = new JSONArray();
-			JSONArray allTag = (JSONArray) input.get("searchByTag");
-			for (int i = 0; i < allTag.size(); i++) {
-				if (this.byTag.containsKey(allTag.get(i))) {
-					JSONObject eachTag = new JSONObject();
-					eachTag.put("similars", searchByTag((String) allTag.get(i)));
-					eachTag.put("tag", allTag.get(i));
-					valueAllTag.add(eachTag);
-				}
-			}
-			
-			obj.put("searchByTag", valueAllTag);
-		}
-		return obj;
-	}
-	
-	/*
 	 * searchByArtist method takes in a string that is the artist we would like to search by.
 	 * We then output a JSONArray of the similar songs to that artist using the toJson method
 	 * from the Song class.
@@ -237,40 +185,72 @@ public class MusicLibrary {
 	public JSONArray searchByArtist(String artist) {
 			
 		JSONArray valueInJSON = new JSONArray();
-		
-		TreeSet<Song> songs = this.byArtist.get(artist);
-		
-		for (Song song : songs) {
-			ArrayList<String> similarList = song.getSimilars();
-			for (String similarSong : similarList) {
-				if (uniqueTrackId.containsKey(similarSong)) {
-					valueInJSON.add(this.uniqueTrackId.get(similarSong).toJson());
+
+		if (this.byArtist.get(artist) != null) {
+			TreeSet<Song> songs = this.byArtist.get(artist);
+			TreeSet<Song> temp = new TreeSet<Song>(new IDComparator());
+			for (Song song : songs) {
+				ArrayList<String> similarList = song.getSimilars();
+				if (similarList.size() > 0) {
+					for (String similarSong : similarList) {
+						if (uniqueTrackId.containsKey(similarSong)) {
+							temp.add(this.uniqueTrackId.get(similarSong));
+						}
+					}
 				}
 			}
+			for (Song eachSim : temp) {
+				valueInJSON.add(eachSim.toJson());
+			}
+			return valueInJSON;
+		}
+		else {
+			return valueInJSON;
 		}
 		
-		return valueInJSON;
-		
-		
 	}
+	
+	/*
+	 * searchByTitle is very similar to searchByArtist except of course
+	 * it is search from the treeMap that is sorted by Title's and extracting
+	 * all the similars songs based on the title.
+	 */
 	
 	public JSONArray searchByTitle(String title) {
 		
 		JSONArray valueInJSON = new JSONArray();
 		
-		TreeSet<Song> songs = this.byTitle.get(title);
-		
-		for (Song song : songs) {
-			ArrayList<String> similarList = song.getSimilars();
-			for (String similarSong : similarList) {
-				if (uniqueTrackId.containsKey(similarSong)) {
-					valueInJSON.add(this.uniqueTrackId.get(similarSong).toJson());
+		if (this.byTitle.get(title) != null) {
+			TreeSet<Song> songs = this.byTitle.get(title);
+			TreeSet<Song> temp = new TreeSet<Song>(new IDComparator());
+			for (Song song : songs) {
+				ArrayList<String> similarList = song.getSimilars();
+				if (similarList.size() > 0) {
+					for (String similarSong : similarList) {
+						if (uniqueTrackId.containsKey(similarSong)) {
+							temp.add(this.uniqueTrackId.get(similarSong));
+						}
+					}
 				}
 			}
+			
+			for (Song eachSim : temp) {
+				valueInJSON.add(eachSim.toJson());
+			}
+			
+			return valueInJSON;
+		}
+		else {
+			return valueInJSON;
 		}
 		
-		return valueInJSON;
 	}
+	
+	/*
+	 * searchByTag is also very similar to searchByArtist and Title,
+	 * but the songs sorted by tag are displayed instead of the similar
+	 * songs.
+	 */
 	
 	public JSONArray searchByTag(String tag) {
 		

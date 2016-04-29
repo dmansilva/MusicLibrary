@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import comparators.ByArtistComparator;
 import comparators.ByTagsComparator;
@@ -256,14 +255,19 @@ public class MusicLibrary {
 		
 		JSONArray valueInJSON = new JSONArray();
 		
-		TreeSet<Song> songs = this.byTags.get(tag);
-		
-		for (Song song : songs) {
+		if (this.byTags.get(tag) != null) {
+			TreeSet<Song> songs = this.byTags.get(tag);
 			
-			valueInJSON.add(song.toJson());
-		}
+			for (Song song : songs) {
+				
+				valueInJSON.add(song.toJson());
+			}
 		
-		return valueInJSON;
+			return valueInJSON;
+			
+		} else {
+			return valueInJSON;
+		}
 	}
 	
 
