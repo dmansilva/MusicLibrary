@@ -17,7 +17,7 @@ public class SearchServlet extends BaseServlet {
 	 * GET /search returns a web page containing a search box where a student's name may be entered.
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		// TODO: this html code repeat twice in this class, you can make this string a class var instead of delcare it twice
 		String responseHtml = "<html" + 
 									"<head><title>Song Finder</title></head>" + 
 									"<body>" +
