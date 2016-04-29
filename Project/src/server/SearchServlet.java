@@ -42,6 +42,7 @@ public class SearchServlet extends BaseServlet {
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
+//TODO: use variable names appropriate for the application.		
 		String student = request.getParameter("student");
 		String type = request.getParameter("type");
 		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) request.getServletContext().getAttribute("musicLibrary");
@@ -54,6 +55,7 @@ public class SearchServlet extends BaseServlet {
 				result = tsml.searchByTitle(student);
 			}
 			else if (type.equals("tag")) {
+//TODO: fix NPE.				
 				result = tsml.searchByTag(student);
 			}
 		}
