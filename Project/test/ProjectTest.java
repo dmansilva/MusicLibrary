@@ -14,8 +14,6 @@ import org.json.simple.parser.JSONParser;
 import org.junit.Assert;
 import org.junit.Test;
 
-
-
 /**
  * Original author sjengle, modified by srollins.
  *

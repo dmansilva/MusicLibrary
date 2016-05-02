@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 /**
  * Adapted from sjengle.
  * @author srollins
