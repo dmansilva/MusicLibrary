@@ -1,0 +1,216 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import database.DBHelper;
+import threadSafety.ThreadSafeMusicLibrary;
+
+public class SongsServlet extends BaseServlet{
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession();
+		if(!isLoggedIn(request, response, session)) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + NOT_LOGGED_IN));
+			return;
+		}
+		
+		String artist = request.getParameter("artist");
+		String decodeArtist = URLDecoder.decode(artist, "UTF-8");
+		System.out.println(artist);
+		System.out.println("decodeArtist: " + decodeArtist);
+		
+		String title = request.getParameter("title");
+		String decodeTitle = URLDecoder.decode(title, "UTF-8");
+		System.out.println(title);
+		System.out.println("decodedTitle: " + decodeTitle);
+		String username = (String) session.getAttribute(USERNAME);
+		String trackId = request.getParameter("trackId");
+		System.out.println(trackId);
+		
+		System.out.println(username);
+		
+		
+		DBHelper.addFavorite(username, decodeArtist, decodeTitle, trackId);
+		
+		
+		
+		displayTableLoop(request, response, (String) session.getAttribute("query"), (String) session.getAttribute("type"));
+		
+		
+	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession();
+		String query = request.getParameter("query");
+		String type = request.getParameter("type");
+		session.setAttribute("query", query);
+		session.setAttribute("type", type);
+		
+		displayTableLoop(request, response, query, type);
+//		HttpSession session = request.getSession();
+//		String username = (String) session.getAttribute(USERNAME);
+//		String footer = footerSearch();
+//		String query = request.getParameter("query");
+//		String type = request.getParameter("type");
+//		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) request.getServletContext().getAttribute("musicLibrary");
+//		JSONArray result = new JSONArray();
+//		if (query != null) {
+//			if (type.equals("artist")) {
+//				result = tsml.searchByArtist(query);
+//			}
+//			else if (type.equals("title")) {
+//				result = tsml.searchByTitle(query);
+//			}
+//			else if (type.equals("tag")) {				
+//				result = tsml.searchByTag(query);
+//			}
+//		}
+//
+//		String responseHtmlHead = "<html" + 
+//				"<head><title>Song Finder</title></head>" +
+//				"<body>";
+//		String responseHtmlContent = "";
+//		if(result.size() > 0) {
+//
+//
+//			String responseTable = "<center>Here are some songs you might like!</center>" +
+//					"<br>" +
+//					"<table border=\"2px\" width=\"100%\">" +				
+//					"<tr><td><strong>Artist</strong></td><td><strong>Song Title</strong></td><td><strong>Favorites</strong></td></tr>";
+//			responseHtmlContent += responseTable;
+//			for (int i = 0; i<result.size(); i++) {
+//				JSONObject simSongs = (JSONObject) result.get(i);
+//				// need an if statement that checks if the that song is already in the favorites list
+//				String encodedArtist = URLEncoder.encode((String) simSongs.get("artist"), "UTF-8");
+//				String encodedTitle = URLEncoder.encode((String) simSongs.get("title"), "UTF-8");
+//				String trackId = (String) simSongs.get("trackId");
+//				if (DBHelper.favoriteCheck(username, trackId)) {
+//					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" + 
+//							simSongs.get("title") + "</td><td>" +  
+//							"Liked" +
+//							"</td> </tr>";
+//					responseHtmlContent += responseTemp;
+//				}
+//				else {
+//					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" + 
+//							simSongs.get("title") + "</td><td>" +  
+//							"<form action=\"songs\" method=\"get\">" +
+//							"<input name=\"artist\" type=\"hidden\" value=" + encodedArtist + ">" +
+//							"<input name=\"title\" type=\"hidden\" value=" + encodedTitle + ">" +
+//							"<input name=\"trackId\" type=\"hidden\" value=" + trackId + ">" +
+//							"<button onClick='submit();'> Add </button> " +
+//							"</form>" +
+//							"</td> </tr>";
+//					responseHtmlContent += responseTemp;
+//
+//				}
+//
+//			}
+//
+//			String endTable = "</table>";
+//			responseHtmlContent += endTable;
+//
+//		} else {
+//			responseHtmlContent = "<center>" + query + " not found!</center>";
+//		}
+//
+//		String responseEnder = 	responseFormatSearch();
+//
+//		String responseHtml = responseHtmlHead + responseEnder + responseHtmlContent + footer;
+//		PrintWriter writer = prepareResponse(response);
+//		writer.println(responseHtml);
+//		
+	}
+	
+	public void displayTableLoop(HttpServletRequest request, HttpServletResponse response, String query, String type) throws ServletException, IOException{
+		
+		HttpSession session = request.getSession();
+		String username = (String) session.getAttribute(USERNAME);
+		HashMap<String, String> favList = DBHelper.getFavList(username);
+		String footer = footerSearch();
+		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) request.getServletContext().getAttribute("musicLibrary");
+		JSONArray result = new JSONArray();
+		if (query != null) {
+			if (type.equals("artist")) {
+				result = tsml.searchByArtist(query);
+			}
+			else if (type.equals("title")) {
+				result = tsml.searchByTitle(query);
+			}
+			else if (type.equals("tag")) {				
+				result = tsml.searchByTag(query);
+			}
+		}
+
+		String responseHtmlHead = "<html" + 
+				"<head><title>Song Finder</title></head>" +
+				"<body>";
+		String responseHtmlContent = "";
+		
+		if(result.size() > 0) {
+
+
+			String responseTable = "<center>Here are some songs you might like!</center>" +
+					"<br>" +
+					"<table border=\"2px\" width=\"100%\">" +				
+					"<tr><td><strong>Artist</strong></td><td><strong>Song Title</strong></td><td><strong>Favorites</strong></td></tr>";
+			responseHtmlContent += responseTable;
+			for (int i = 0; i<result.size(); i++) {
+				JSONObject simSongs = (JSONObject) result.get(i);
+				// need an if statement that checks if the that song is already in the favorites list
+				String encodedArtist = URLEncoder.encode((String) simSongs.get("artist"), "UTF-8");
+				String encodedTitle = URLEncoder.encode((String) simSongs.get("title"), "UTF-8");
+				String trackId = (String) simSongs.get("trackId");
+				if (favList.containsKey(username)) {
+					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" + 
+							simSongs.get("title") + "</td><td>" +  
+							"Liked" +
+							"</td> </tr>";
+					responseHtmlContent += responseTemp;
+				}
+				else {
+					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" + 
+							simSongs.get("title") + "</td><td>" +  
+							"<form action=\"songs\" method=\"get\">" +
+							"<input name=\"artist\" type=\"hidden\" value=" + encodedArtist + ">" +
+							"<input name=\"title\" type=\"hidden\" value=" + encodedTitle + ">" +
+							"<input name=\"trackId\" type=\"hidden\" value=" + trackId + ">" +
+							"<button onClick='submit();'> Add </button> " +
+							"</form>" +
+							"</td> </tr>";
+					responseHtmlContent += responseTemp;
+
+				}
+
+			}
+
+			String endTable = "</table>";
+			responseHtmlContent += endTable;
+
+		} else {
+			responseHtmlContent = "<center>" + query + " not found!</center>";
+		}
+
+		String responseEnder = 	responseFormatSearch();
+
+		String responseHtml = responseHtmlHead + responseEnder + responseHtmlContent + footer;
+		PrintWriter writer = prepareResponse(response);
+		writer.println(responseHtml);
+	}
+
+}

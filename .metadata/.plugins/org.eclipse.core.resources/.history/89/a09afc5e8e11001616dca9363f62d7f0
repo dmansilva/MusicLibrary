@@ -1,0 +1,32 @@
+package database;
+
+import java.sql.SQLException;
+
+public class DBHelper {
+	
+	
+	// need a method called addUser() that you can send the use
+	
+	
+	
+	
+	// create a table called users that has full name, username, and password
+	public static void createUserTable(DBConfig dbconfig) throws SQLException {
+		
+		 
+		//Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE user " +
+                "(fullname VARCHAR(100) NOT NULL, " + 
+                " username VARCHAR(100), " + 
+                " password VARCHAR(100), "; 
+		
+		//PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		//stmt.execute();
+		
+		
+	}
+
+
+}

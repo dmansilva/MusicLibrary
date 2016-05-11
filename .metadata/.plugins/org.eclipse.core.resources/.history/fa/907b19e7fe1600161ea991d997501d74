@@ -1,0 +1,28 @@
+package server;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import database.DBHelper;
+
+public class AddingFavServlet extends BaseServlet{
+	
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession();
+		String trackId = request.getParameter("trackId");
+		String username = (String) session.getAttribute(USERNAME);
+		System.out.println(trackId);
+		System.out.println(username);
+		
+		DBHelper.addFavorite(username, trackId);
+		
+		response.sendRedirect(response.encodeRedirectURL("/search"));
+	}
+
+}

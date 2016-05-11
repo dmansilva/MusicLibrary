@@ -1,0 +1,31 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class FavsListServlet extends BaseServlet {
+	
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		String header = header();
+		
+		String footer =  "<html>" +
+						"<center> <a href=\"/logout\" >Logout</a> </center>" +
+						"<center> <a href=\"/search\" >Go back to Search</a> </center>" +
+						"</html>";
+		
+		// 
+		
+		//String finalResponse = responseHtml + footer;
+		PrintWriter writer = prepareResponse(response);
+		//writer.println(finalResponse);
+		
+	}
+
+}

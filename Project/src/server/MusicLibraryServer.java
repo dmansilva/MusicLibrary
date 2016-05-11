@@ -47,9 +47,19 @@ public class MusicLibraryServer {
 			}
 		});
 		// this is where u add each page
+		servhandler.addServlet(LoginServlet.class, "/login");
+		
 		servhandler.addServlet(SearchServlet.class, "/search");
+		
+		servhandler.addServlet(NewAccountServlet.class, "/newUser");
+		
+		servhandler.addServlet(LogoutServlet.class, "/logout");
+		
+		servhandler.addServlet(FavsListServlet.class, "/favsList");
+		
+		servhandler.addServlet(SongsServlet.class, "/songs");
 
-		//servhandler.addServlet(SongsServlet.class, "/search");
+		
 		server.setHandler(servhandler);
 
 		server.start();

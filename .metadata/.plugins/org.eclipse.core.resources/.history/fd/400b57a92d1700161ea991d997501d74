@@ -1,0 +1,111 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import database.DBHelper;
+
+
+public class LoginServlet extends BaseServlet {
+	
+	DBHelper dbhelper = new DBHelper();
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		HttpSession session = request.getSession();
+		if(isLoggedIn(request, response, session)) {
+			response.sendRedirect(response.encodeRedirectURL("/search"));
+			return;
+		}
+		
+	 	String status = getParameterValue(request, STATUS);
+		boolean statusok = status != null && status.equals(ERROR)?false:true;
+		boolean redirected = status != null && status.equals(NOT_LOGGED_IN)?true:false;
+		boolean mismatch = status != null && status.equals(MIXMATCH)?true:false;
+		
+		
+		String header = header();
+		String footer =	"<html" +
+				"<body>" +
+				"<form action=\"login\" method=\"post\">" +
+				"<center> Sign In </center><br/>" + 
+				"<center> Username: "  +
+				"<input type=\"text\" name=\"username\"></center><br/>" +
+				"<center> Password: "  +
+				"<input type=\"password\" name=\"password\"><br/>" +
+				"<input type=\"submit\" value=\"Login\"></center><br/>" +
+				"</form>" +
+				"<hr>" +
+				"<hr>" +
+				"<hr>" +
+				"<form action=\"newUser\" method=\"get\">" +
+				"<center><input type=\"submit\" value=\"Create an Account\"></center><br/>" +
+				"</form>" +
+				"</body>" +
+				"</html>";
+
+		
+		
+		PrintWriter writer = prepareResponse(response);
+		writer.println(header);   			
+		
+		//if the user was redirected here as a result of an error
+		if(!statusok) {
+			writer.println("<h3><font color=\"red\">Invalid Request to Login</font></h3>");
+		} else if(redirected) {
+			writer.println("<h3><font color=\"red\">Log in first!</font></h3>");
+		} else if(mismatch) {
+			writer.println("h3><font color=\"red\">Passwords do not Match!</font></h3>");
+		} 
+		
+		writer.println(footer);
+		
+	}
+	
+	/*
+	 * doPost will take care of verifying the user's login input from the doGet. 
+	 * It will call a method call ValidateUser in order to get and validate the
+	 * information about already existing user's information from the relational database.
+	 * (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		
+		String username = request.getParameter(USERNAME);
+		String password = request.getParameter(PASSWORD);
+		
+		// check to see if i need to check password as well
+		if(username == null || username.trim().equals("")) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + ERROR));
+			return;
+		}
+		
+		if (password == null || password.trim().equals("")) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + ERROR));
+			return;
+		}
+		
+		
+		if (DBHelper.verifyUser(username, password)) {
+			HttpSession session = request.getSession();
+			session.setAttribute(USERNAME, username);
+			session.setAttribute(PASSWORD, password);
+			response.sendRedirect(response.encodeRedirectURL("/search?" + VERIFIEDUSERNAME));
+		} 
+		else {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + ERROR));
+			return;
+		}
+		
+	}
+
+}

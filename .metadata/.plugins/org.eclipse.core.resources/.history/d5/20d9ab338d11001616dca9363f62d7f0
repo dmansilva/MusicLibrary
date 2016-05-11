@@ -1,0 +1,8 @@
+package database;
+
+public class DBHelper {
+	
+	
+	// need a method called addUser() that you can send the use
+
+}

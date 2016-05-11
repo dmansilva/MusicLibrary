@@ -1,0 +1,123 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import database.DBHelper;
+import threadSafety.ThreadSafeMusicLibrary;
+
+public class LoginServlet extends BaseServlet {
+	
+	DBHelper dbhelper = new DBHelper();
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) getServletConfig().getServletContext().getAttribute("musicLibrary");
+		HttpSession session = request.getSession();
+		
+		//if user is logged in, redirect
+		// check to see if i have to check for password as well
+	 	if(session.getAttribute(USERNAME) != null) {
+			response.sendRedirect(response.encodeRedirectURL("/list"));
+			return;
+		}
+		
+	 	String status = getParameterValue(request, STATUS);
+		
+		boolean statusok = status != null && status.equals(ERROR)?false:true;
+		boolean redirected = status != null && status.equals(NOT_LOGGED_IN)?true:false;
+		
+		String header = header();
+				
+		String footer =	"<html" +
+				"<body>" +
+				"<form action=\"login\" method=\"post\">" +
+				"<center> Sign In </center><br/>" + 
+				"<center> Username: "  +
+				"<input type=\"text\" name=\"username\"></center><br/>" +
+				"<center> Password: "  +
+				"<input type=\"text\" name=\"password\"><br/>" +
+				"<input type=\"submit\" value=\"Login\"></center><br/>" +
+				"</form>" +
+				"<hr>" +
+				"<hr>" +
+				"<hr>" +
+				"<form action=\"newUser\" method=\"get\">" +
+				"<input type=\"submit\" value=\"Create an Account\"><br/>" +
+				"</form>" +
+				"</body>" +
+				"</html>";
+
+		// calling newAccountServlet with extension /newUser
+		
+		PrintWriter writer = prepareResponse(response);
+		writer.println(header);   			// not correct need to fix
+		
+		//if the user was redirected here as a result of an error
+		if(!statusok) {
+			writer.println("<h3><font color=\"red\">Invalid Request to Login</font></h3>");
+		} else if(redirected) {
+			writer.println("<h3><font color=\"red\">Log in first!</font></h3>");
+		}
+		
+		writer.println(footer);
+		
+	}
+	
+	/*
+	 * doPost will take care of verifying the user's login input from the doGet. 
+	 * It will call a method call ValidateUser in order to get and validate the
+	 * information about already existing user's information from the relational database.
+	 * (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		
+		String username = request.getParameter(USERNAME);
+		String password = request.getParameter(PASSWORD);
+		
+		// check to see if i need to check password as well
+		if(username == null || username.trim().equals("")) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + ERROR));
+			return;
+		}
+		
+		if (password == null || password.trim().equals("")) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + ERROR));
+			return;
+		}
+		
+		HttpSession session = request.getSession();
+		session.setAttribute(USERNAME, username);
+		session.setAttribute(PASSWORD, password);
+		
+		//OPTION 2: Store volatile data in a single, shared object that is stored in the servlet context and
+		//can therefore be accessed by all users/sessions/servlets.
+		
+		//map id to name and userinfo
+		//Data data = (Data) getServletConfig().getServletContext().getAttribute(DATA);
+		//we assume no username conflicts and provide no ability to register for our service!
+		//data.addUser(name);  
+							
+		//redirect to list
+		if (DBHelper.verifyUser(USERNAME, PASSWORD)) {
+			response.sendRedirect(response.encodeRedirectURL("/list"));
+		} 
+		else {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + ERROR));
+			return;
+		}
+		//response.sendRedirect(response.encodeRedirectURL("/list"));
+		
+	}
+
+}
