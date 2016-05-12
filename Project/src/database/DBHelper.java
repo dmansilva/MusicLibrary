@@ -34,6 +34,8 @@ public class DBHelper {
 			
 			Connection con = getConnection(dbconfig);
 			if (tableExists(con, USER)) {
+				
+//TODO: remove duplicate code and get rid of else condition.				
 				PreparedStatement userTable = con.prepareStatement("INSERT INTO user (fullname, username, password) VALUES (?, ?, ?)");
 				
 				userTable.setString(1, fullname);
@@ -72,6 +74,8 @@ public class DBHelper {
 			
 			Connection con = getConnection(dbconfig);
 			if (tableExists(con, FAVORITE)) {
+				
+//TODO: see comment above.				
 				PreparedStatement favTable = con.prepareStatement("INSERT INTO favs (username, artist, title, trackId) VALUES (?, ?, ?, ?)");
 				
 				favTable.setString(1, currentUserName);
