@@ -67,6 +67,10 @@ public class Song {
 	
 	}
 	
+	public Song() {
+		
+	}
+	
 	/*
 	 * toJSON formats a new JSONObject when it is called by
 	 * first adding artist, trackId, and title.

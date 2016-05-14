@@ -1,0 +1,37 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+public class SongInfoServlet extends BaseServlet {
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession();
+		
+		
+		String artist = request.getParameter("artist");
+		String title = request.getParameter("title");
+		System.out.println(artist);
+		System.out.println(title);
+		
+		String header = header();
+		String footer = "<html>" +
+				"<center> <a href=\"/logout\" >Logout</a> </center>" +
+				"<center> <a href=\"/search\" >Go back to Search</a> </center>" +
+				"<center> <a href=\"/favsList\" >Favs List</a> </center>" +
+				"</html>";
+		
+		
+		String finalResponse = header;
+		PrintWriter writer = prepareResponse(response);
+		writer.println(finalResponse);
+		
+	}
+
+}

@@ -28,7 +28,7 @@ public class LoginServlet extends BaseServlet {
 		boolean statusok = status != null && status.equals(ERROR)?false:true;
 		boolean redirected = status != null && status.equals(NOT_LOGGED_IN)?true:false;
 		boolean mismatch = status != null && status.equals(MIXMATCH)?true:false;
-		
+		boolean loggedout = status != null && status.equals(LOGGEDOUT)?true:false;
 		
 		String header = header();
 		String footer =	"<html" +
@@ -62,7 +62,9 @@ public class LoginServlet extends BaseServlet {
 			writer.println("<h3><font color=\"red\">Log in first!</font></h3>");
 		} else if(mismatch) {
 			writer.println("<h3><font color=\"red\">Passwords do not Match!</font></h3>");
-		} 
+		} else if(loggedout) {
+			writer.println("<h3><font color=\"red\">Logged Out Successfully!</font></h3>");
+		}
 		writer.println(footer);
 		
 	}

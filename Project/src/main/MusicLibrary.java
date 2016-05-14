@@ -270,5 +270,28 @@ public class MusicLibrary {
 		}
 	}
 	
+	/*
+	 * returns the song associated with the given trackId
+	 */
+	
+	public Song getSongFromTrackId(String trackId) {
+		
+		return this.uniqueTrackId.get(trackId);
+	}
+	
+	/*
+	 * returns the TreeSet of songs associated with the given title
+	 */
+	
+	public TreeSet<Song> getSongsFromTitle(String title) {
+		
+		TreeSet<Song> allSims = new TreeSet<Song>();
+		if (this.byTitle.get(title) != null) {
+			allSims = this.byTitle.get(title);
+		}
+		
+		return allSims;
+	}
+	
 
 }

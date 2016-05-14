@@ -29,15 +29,6 @@ public class SongsServlet extends BaseServlet{
 			return;
 		}
 		
-		String artist = request.getParameter("artist");
-		String decodeArtist = URLDecoder.decode(artist, "UTF-8");
-		String title = request.getParameter("title");
-		String decodeTitle = URLDecoder.decode(title, "UTF-8");
-		String username = (String) session.getAttribute(USERNAME);
-		String trackId = request.getParameter("trackId");
-		
-		DBHelper.addFavorite(username, decodeArtist, decodeTitle, trackId);
-		
 		displayTableLoop(request, response, (String) session.getAttribute("query"), (String) session.getAttribute("type"));
 		
 		
@@ -59,7 +50,7 @@ public class SongsServlet extends BaseServlet{
 		
 		HttpSession session = request.getSession();
 		String username = (String) session.getAttribute(USERNAME);
-		HashMap<String, ArrayList<String>> favList = DBHelper.getFavList(username);
+		HashMap <String, String> favList = DBHelper.getFavList(username);
 		String footer = footerSearch();
 		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) request.getServletContext().getAttribute("musicLibrary");
 		JSONArray result = new JSONArray();
@@ -90,23 +81,18 @@ public class SongsServlet extends BaseServlet{
 			responseHtmlContent += responseTable;
 			for (int i = 0; i<result.size(); i++) {
 				JSONObject simSongs = (JSONObject) result.get(i);
-				// need an if statement that checks if the that song is already in the favorites list
-				String encodedArtist = URLEncoder.encode((String) simSongs.get("artist"), "UTF-8");
-				String encodedTitle = URLEncoder.encode((String) simSongs.get("title"), "UTF-8");
 				String trackId = (String) simSongs.get("trackId");
 				if (favList.containsKey(trackId)) {
 					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" + 
-							simSongs.get("title") + "</td><td>" +  
+							"<a href=\"/songInfo?artist=" + simSongs.get("artist") + "&title=" + simSongs.get("title") + "\">" + simSongs.get("title") + "</a>" + "</td><td>" +  
 							"Liked" +
 							"</td> </tr>";
 					responseHtmlContent += responseTemp;
 				}
 				else {
-					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" + 
-							simSongs.get("title") + "</td><td>" +  
-							"<form action=\"songs\" method=\"get\">" +
-							"<input name=\"artist\" type=\"hidden\" value=" + encodedArtist + ">" +
-							"<input name=\"title\" type=\"hidden\" value=" + encodedTitle + ">" +
+					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" +  
+							"<a href=\"/songInfo?artist=" + simSongs.get("artist") + "&title=" + simSongs.get("title") + "\">" + simSongs.get("title") + "</a>" + "</td><td>" + 
+							"<form action=\"favsList\" method=\"post\">" +
 							"<input name=\"trackId\" type=\"hidden\" value=" + trackId + ">" +
 							"<button onClick='submit();'> Add </button> " +
 							"</form>" +
@@ -123,6 +109,8 @@ public class SongsServlet extends BaseServlet{
 		} else {
 			responseHtmlContent = "<center>" + query + " not found!</center>";
 		}
+
+	
 
 		String responseEnder = 	responseFormatSearch();
 

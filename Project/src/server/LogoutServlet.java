@@ -12,7 +12,7 @@ public class LogoutServlet extends BaseServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		request.getSession().invalidate();
-		response.sendRedirect(response.encodeRedirectURL("/login?") + "You have successfully logged out!");
+		response.sendRedirect(response.encodeRedirectURL("/login?") + STATUS + "=" + LOGGEDOUT);
 		
 	}
 }

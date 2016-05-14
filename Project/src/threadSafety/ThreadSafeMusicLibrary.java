@@ -86,5 +86,25 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 		lock.unlockRead();
 		return similarSongs;
 	}
+	
+	public Song getSongFromTrackId(String trackId) {
+		
+		Song song = new Song();
+		lock.lockRead();
+		song =  super.getSongFromTrackId(trackId);
+		lock.unlockRead();
+		
+		return song;
+	}
+	
+	public TreeSet<Song> getSongsFromTitle(String title) {
+		
+		TreeSet<Song> allSims = new TreeSet<Song>();
+		lock.lockRead();
+		allSims = super.getSongsFromTitle(title);	
+		lock.unlockRead();
+		
+		return allSims;
+	}
 
 }

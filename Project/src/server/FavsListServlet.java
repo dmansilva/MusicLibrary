@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import database.DBHelper;
+import main.Song;
+import threadSafety.ThreadSafeMusicLibrary;
 
 public class FavsListServlet extends BaseServlet {
 	
@@ -22,12 +24,13 @@ public class FavsListServlet extends BaseServlet {
 		String header = header();
 		String footer = footer();
 		HttpSession session = request.getSession();
+		ThreadSafeMusicLibrary tsml = (ThreadSafeMusicLibrary) request.getServletContext().getAttribute("musicLibrary");
 		if(!isLoggedIn(request, response, session)) {
 			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + NOT_LOGGED_IN));
 			return;
 		}
 		String username = (String) session.getAttribute(USERNAME);
-		HashMap<String, ArrayList<String>> favMap = new HashMap<String, ArrayList<String>>();
+		HashMap<String, String> favMap = new HashMap<String, String>();
 		String allRows = "";
 		favMap = DBHelper.getFavList(username);
 		if (favMap.isEmpty()) {
@@ -43,9 +46,9 @@ public class FavsListServlet extends BaseServlet {
 					"<table border=\"2px\" width=\"100%\">" +				
 					"<tr><td><strong>Artist</strong></td><td><strong>Song Title</strong></td></tr>";
 			allRows += favoriteTable;
-			for (ArrayList<String> info : favMap.values()) {
-				
-				String eachFavRow  = "<tr><td>" + info.get(0)+ "</td><td>" + info.get(1) + "</td></tr>";
+			for (String eachTrackId : favMap.keySet()) {
+				Song eachSong = tsml.getSongFromTrackId(eachTrackId);
+				String eachFavRow  = "<tr><td>" + eachSong.getArtist() + "</td><td>" + eachSong.getTitle() + "</td></tr>";
 				allRows += eachFavRow;
 			}
 			String endOfTable = "</table>";
@@ -56,6 +59,17 @@ public class FavsListServlet extends BaseServlet {
 			PrintWriter writer = prepareResponse(response);
 			writer.println(finalResponse);
 		}
+		
+	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession();
+		String username = (String) session.getAttribute(USERNAME);
+		String trackId = request.getParameter("trackId");
+		DBHelper.addFavorite(username, trackId);
+		
+		response.sendRedirect(response.encodeRedirectURL("/songs"));
 		
 	}
 

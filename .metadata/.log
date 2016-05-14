@@ -625,3 +625,13 @@ Java Model Exception: Java Model Status [displayTableLoop(HttpServletRequest, Ht
 	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:166)
 !SUBENTRY 1 org.eclipse.jdt.core 4 969 2016-05-10 19:37:34.453
 !MESSAGE displayTableLoop(HttpServletRequest, HttpServletResponse) [in SongsServlet [in [Working copy] SongsServlet.java [in server [in src [in Project]]]]] does not exist
+!SESSION 2016-05-13 13:48:32.979 -----------------------------------------------
+eclipse.buildId=4.5.1.M20150904-0015
+java.version=1.8.0_60
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product -keyring /Users/Danny/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -keyring /Users/Danny/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2016-05-13 13:48:45.708
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
