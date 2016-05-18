@@ -44,11 +44,16 @@ public class FavsListServlet extends BaseServlet {
 			String favoriteTable = "<center>Here are your favorites songs!</center>" +
 					"<br>" +
 					"<table border=\"2px\" width=\"100%\">" +				
-					"<tr><td><strong>Artist</strong></td><td><strong>Song Title</strong></td></tr>";
+					"<tr><td><strong>Artist</strong></td><td><strong>Song Title</strong></td><td><strong>Delete this Favorite</strong></td></tr>";
 			allRows += favoriteTable;
 			for (String eachTrackId : favMap.keySet()) {
 				Song eachSong = tsml.getSongFromTrackId(eachTrackId);
-				String eachFavRow  = "<tr><td>" + eachSong.getArtist() + "</td><td>" + eachSong.getTitle() + "</td></tr>";
+				//System.out.println(eachSong.getTrackId() + eachSong.getArtist());
+				String eachFavRow  = "<tr><td>" + eachSong.getArtist() + "</td><td>" + eachSong.getTitle() + "</td><td> " +
+						"<form action=\"deleteFav\" method=\"post\">" +
+						"<input name=\"trackId\" type=\"hidden\" value=" + eachSong.getTrackId() + ">" +
+						"<button onClick='submit();'> Remove </button> " +
+						"</form>" +"</tr>";
 				allRows += eachFavRow;
 			}
 			String endOfTable = "</table>";
@@ -69,7 +74,20 @@ public class FavsListServlet extends BaseServlet {
 		String trackId = request.getParameter("trackId");
 		DBHelper.addFavorite(username, trackId);
 		
-		response.sendRedirect(response.encodeRedirectURL("/songs"));
+		String linkFrom = request.getParameter("link");
+		String artist = request.getParameter("artist");
+		String title = request.getParameter("title");
+		System.out.println(linkFrom);
+		if (linkFrom.equals("songs")){
+			response.sendRedirect(response.encodeRedirectURL("/songs"));
+		}
+		
+		if (linkFrom.equals("songinfo")) {
+			
+			response.sendRedirect(response.encodeRedirectURL("/songInfo?" + "artist="+ artist + "&title=" + title));
+		}
+		
+		
 		
 	}
 

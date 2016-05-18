@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import java.util.Calendar;
+import javax.servlet.http.Cookie;
 
 import database.DBHelper;
 import threadSafety.ThreadSafeMusicLibrary;
@@ -25,19 +27,59 @@ public class SearchServlet extends BaseServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		HttpSession session = request.getSession();
+		PrintWriter writer = prepareResponse(response);
+		String username = (String) session.getAttribute(USERNAME);
 		if(!isLoggedIn(request, response, session)) {
 			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + NOT_LOGGED_IN));
 			return;
 		}
+		
+//		for (Cookie cookies : request.getCookies()) {
+//			if(cookies.getName().compareTo("date") == 0) {
+//				writer.println("<h3><font color=\"red\">Last Login is: " + cookies.getValue() + "!</font></h3>");
+//			}
+//		}
+		
 		String status = getParameterValue(request, STATUS);
 		boolean loginSuccess = status != null && status.equals(VERIFIEDUSERNAME)?true:false;
+		boolean passchange = status != null && status.endsWith(PASSCHANGE)?true:false;
+		boolean isAdmin = status != null && status.endsWith(ADMIN)?true:false;
+		boolean adminFail = status != null && status.endsWith(ADMINFAIL)?true:false;
+		//boolean shutdownFail = status != null && status.endsWith(SHUTDOWNFAIL)?true:false;
+		
 		String responseHtml = responseFormatSearch();
+		String suggested = "<html>" + 
+				"<center><a href=\"/suggested\">Want to see the most popular searches?</a><center>" + 
+				"</html>";
 		String footer = footerSearch();
-		String finalResponse = responseHtml + footer;
-		PrintWriter writer = prepareResponse(response);
+		String admin = "<html>" + 
+						"<center><a href=\"/admin\">Want to be an Admin?</a><center>" + 
+						"</html>";
+		String shutdown = "<html>" + 
+				"<center><a href=\"/shutdown\">Shutdown Server</a><center>" + 
+				"</html>";
+		String finalResponse = "";
+		if (DBHelper.isAdmin(username)) {
+			finalResponse = responseHtml + suggested + footer + shutdown;
+		}
+		else {
+			finalResponse = responseHtml + suggested + admin + footer + shutdown;
+		}
+		
+		
 		if(loginSuccess) {
 			writer.println("<h3><font color=\"red\">Login Successful!</font></h3>");
-		}
+		} else if(passchange) {
+			writer.println("<h3><font color=\"red\">Password Changed Successfully!</font></h3>");
+		} else if(isAdmin) {
+			writer.println("<h3><font color=\"red\">You are now an Admin!</font></h3>");
+		} else if(adminFail) {
+			writer.println("<h3><font color=\"red\">You are not an Admin!</font></h3>");
+		} 
+//		else if(shutdownFail) { 
+//			System.out.println("here");
+//			writer.println("<h3><font color=\"red\">You cannot shutdown because you are not an Admin!</font></h3>");
+//		}
 		writer.println(finalResponse);
 	}
 

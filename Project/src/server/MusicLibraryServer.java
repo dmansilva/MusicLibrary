@@ -8,6 +8,8 @@ import javax.servlet.ServletContextListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import database.DBConfig;
+import database.LastFmClient;
 import main.MusicLibraryBuilder;
 import threadSafety.ThreadSafeMusicLibrary;
 
@@ -43,6 +45,10 @@ public class MusicLibraryServer {
 					musicLib = new ThreadSafeMusicLibrary();
 				}
 				sce.getServletContext().setAttribute("musicLibrary", musicLib);
+				sce.getServletContext().setAttribute("server", server);
+				
+				//DBConfig dbconfig = new DBConfig();
+				//LastFmClient.fetchAndStoreArtists(musicLib.getArtistMap(), dbconfig);
 			
 			}
 		});
@@ -60,6 +66,24 @@ public class MusicLibraryServer {
 		servhandler.addServlet(SongsServlet.class, "/songs");
 		
 		servhandler.addServlet(SongInfoServlet.class, "/songInfo");
+		
+		servhandler.addServlet(AllArtistServlet.class, "/allArtists");
+		
+		servhandler.addServlet(ArtistInfoServlet.class, "/artistinfo");
+		
+		servhandler.addServlet(PlayCountServlet.class, "/playcount");
+		
+		servhandler.addServlet(ChangePassword.class, "/changepassword");
+		
+		servhandler.addServlet(SearchHistory.class, "/searchHistory");
+		
+		servhandler.addServlet(AdminStatusServlet.class, "/admin");
+		
+		servhandler.addServlet(ShutdownServlet.class, "/shutdown");
+		
+		servhandler.addServlet(DeleteFavServlet.class, "/deleteFav");
+		
+		servhandler.addServlet(SuggestedServlet.class, "/suggested");
 
 		
 		server.setHandler(servhandler);

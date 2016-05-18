@@ -1,5 +1,6 @@
 package threadSafety;
 import java.nio.file.Path;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.json.simple.JSONArray;
@@ -105,6 +106,16 @@ public class ThreadSafeMusicLibrary extends MusicLibrary {
 		lock.unlockRead();
 		
 		return allSims;
+	}
+	
+	public TreeMap<String, TreeSet<Song>> getArtistMap() {
+		
+		TreeMap <String, TreeSet<Song>> byArtistAlphabetical = new TreeMap<String, TreeSet<Song>>();
+		lock.lockRead();
+		byArtistAlphabetical = super.getArtistMap();
+		lock.unlockRead();
+		
+		return byArtistAlphabetical;
 	}
 
 }

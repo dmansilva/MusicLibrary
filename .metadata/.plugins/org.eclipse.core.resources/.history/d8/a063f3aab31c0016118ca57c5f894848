@@ -1,0 +1,62 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import database.DBHelper;
+
+public class SuggestedServlet extends BaseServlet {
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+		HttpSession session = request.getSession();
+		PrintWriter writer = prepareResponse(response);
+		String username = (String) session.getAttribute(USERNAME);
+		HashMap<String, String> suggested = new HashMap<String, String>();
+		if(!isLoggedIn(request, response, session)) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + NOT_LOGGED_IN));
+			return;
+		}
+		
+		String header = header();
+		String footer = footerSuggested();
+		suggested = DBHelper.getSuggestedList();
+		String responseTable = "";
+		if (suggested.size() > 0) {
+			responseTable = "<center>Here are some popular searches you might be interested in!</center>" +
+					"<br>" +
+					"<table border=\"2px\" width=\"100%\">" +				
+					"<tr><td><strong>Type</strong></td><td><strong>Query</strong></td></tr>";
+			
+			for (String type : suggested.keySet()) {
+				
+				
+				String responseTemp = "<tr><td>" + type + "</td><td>" + 
+						 suggested.get(type) + "</td><td>" +  
+						 "</tr>";
+				responseTable += responseTemp;
+				
+			}
+			
+			String endTable = "</table>";
+			responseTable += endTable;
+		}
+		else {
+			responseTable = "<center>History is currently clear, so no popular searches!</center>";
+		}
+		
+		String responseHtml = header + responseTable + footer;
+		
+		writer.println(responseHtml);
+		
+		
+	}
+
+}

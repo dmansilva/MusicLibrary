@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+
 import database.DBHelper;
 
 
@@ -30,8 +31,9 @@ public class LoginServlet extends BaseServlet {
 		boolean mismatch = status != null && status.equals(MIXMATCH)?true:false;
 		boolean loggedout = status != null && status.equals(LOGGEDOUT)?true:false;
 		
+		
 		String header = header();
-		String footer =	"<html" +
+		String footer =	"<html>" +
 				"<body>" +
 				"<form action=\"login\" method=\"post\">" +
 				"<center> Sign In </center><br/>" + 
@@ -64,7 +66,7 @@ public class LoginServlet extends BaseServlet {
 			writer.println("<h3><font color=\"red\">Passwords do not Match!</font></h3>");
 		} else if(loggedout) {
 			writer.println("<h3><font color=\"red\">Logged Out Successfully!</font></h3>");
-		}
+		} 
 		writer.println(footer);
 		
 	}

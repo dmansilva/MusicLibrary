@@ -37,10 +37,19 @@ public class SongsServlet extends BaseServlet{
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		HttpSession session = request.getSession();
+		String username = (String) session.getAttribute(USERNAME);
 		String query = request.getParameter("query");
 		String type = request.getParameter("type");
+		String pSearch = request.getParameter("private");
+		
 		session.setAttribute("query", query);
 		session.setAttribute("type", type);
+		
+		if (pSearch.equals("no")) {
+			DBHelper.addToSearchHistory(username, type, query);
+		}
+		
+		DBHelper.addToSuggestSearchHistory(type, query);
 		
 		displayTableLoop(request, response, query, type);
 	
@@ -66,7 +75,7 @@ public class SongsServlet extends BaseServlet{
 			}
 		}
 
-		String responseHtmlHead = "<html" + 
+		String responseHtmlHead = "<html>" + 
 				"<head><title>Song Finder</title></head>" +
 				"<body>";
 		String responseHtmlContent = "";
@@ -92,7 +101,7 @@ public class SongsServlet extends BaseServlet{
 				else {
 					String responseTemp = "<tr><td>" + simSongs.get("artist") + "</td><td>" +  
 							"<a href=\"/songInfo?artist=" + simSongs.get("artist") + "&title=" + simSongs.get("title") + "\">" + simSongs.get("title") + "</a>" + "</td><td>" + 
-							"<form action=\"favsList\" method=\"post\">" +
+							"<form action=\"favsList?link=songs&artist=&title=\" method=\"post\">" +
 							"<input name=\"trackId\" type=\"hidden\" value=" + trackId + ">" +
 							"<button onClick='submit();'> Add </button> " +
 							"</form>" +

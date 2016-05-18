@@ -50,8 +50,9 @@ public class MusicLibrary {
 	public void addSong(Song song) {
 		
 		String artist_check = song.getArtist();
-		
+		artist_check = artist_check.replace("\"", "");
 		if (!this.byArtist.containsKey(artist_check)) {
+			
 			this.byArtist.put(artist_check, new TreeSet<Song>(new ByArtistComparator()));
 		}
 		
@@ -293,5 +294,13 @@ public class MusicLibrary {
 		return allSims;
 	}
 	
+	/*
+	 * returns the TreeMap sorted byArtist 
+	 */
+	
+	public TreeMap<String, TreeSet<Song>> getArtistMap() {
+		
+		return this.byArtist;
+	}
 
 }

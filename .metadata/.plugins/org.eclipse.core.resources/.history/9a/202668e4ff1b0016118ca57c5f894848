@@ -1,0 +1,667 @@
+package database;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.sql.*;
+
+
+
+public class DBHelper {
+	
+	
+	private static DBConfig dbconfig = new DBConfig();
+	private static String USER = "user";
+	private static String FAVORITE = "favs";
+	private static String LASTFM = "lastfm";
+	private static String HISTORY = "history";
+	
+	
+	
+	/* 
+	 * The addUser() method takes in the full name, username, 
+	 * and password and constructs an appropriate INSERT statement, and uses a 
+	 * PreparedStatement object to insert the information into the database.
+	*/
+	
+	public static void addUser(String fullname, String username, String password) {
+		
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, USER)) {
+				createUserTable(dbconfig);
+			}
+				
+				PreparedStatement userTable = con.prepareStatement("INSERT INTO user (fullname, username, password) VALUES (?, ?, ?)");
+				
+				userTable.setString(1, fullname);
+				userTable.setString(2, username);
+				userTable.setString(3, password);
+
+				userTable.execute();
+				con.close();
+				
+				
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*
+	 * addFavorite method adds the new favorite song, storing the trackId for that song and username
+	 */
+	
+	public static void addFavorite(String currentUserName, String trackId) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, FAVORITE)) {
+				
+				createFavoritesTable(dbconfig);
+			}
+				
+				PreparedStatement favTable = con.prepareStatement("INSERT INTO favs (username, trackid) VALUES (?, ?)");
+				
+				favTable.setString(1, currentUserName);
+				favTable.setString(2, trackId);
+				
+				favTable.execute();
+				con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	public static void addToSearchHistory(String username, String type, String query) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, HISTORY)) {
+				
+				createSearchHistoryTable(dbconfig);
+			}
+				
+				PreparedStatement historyTable = con.prepareStatement("INSERT INTO history (username, type, query) VALUES (?, ?, ?)");
+				
+				historyTable.setString(1, username);
+				historyTable.setString(2, type);
+				historyTable.setString(3, query);
+				
+				
+				historyTable.execute();
+				con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*
+	 * verifyUserName method takes in the username that is trying to be added and sees if
+	 * that username is already in the database.
+	 */
+	
+	public static boolean verifyUserName(String username) {
+		
+		
+		Connection con = null;
+		ResultSet set = null;
+		
+		try {
+			
+			con = getConnection(dbconfig);
+			PreparedStatement userTable = con.prepareStatement("SELECT username FROM user WHERE username = ?");
+			userTable.setString(1, username);
+			set = userTable.executeQuery();
+			boolean result = set.absolute(1);
+			return result;
+			
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		} 
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+					set.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		return false;
+	}
+	
+	/*
+	 * The verifyUser()  might take a username and password and return true if 
+	 * the username and password match a row in the database, and false if not.
+	 */
+	
+	public static boolean verifyUser(String username, String password)  {
+		
+		
+		String loginInfo = "SELECT username, password FROM user";
+		Connection con = null;
+		PreparedStatement userTable;
+		try {
+			con = getConnection(dbconfig);
+			userTable = con.prepareStatement(loginInfo);
+			ResultSet result = userTable.executeQuery();
+			
+			while (result.next()) {
+				
+				String userName = result.getString("username");
+				String passWord = result.getString("password");
+				
+				if (username.equals(userName) && password.equals(passWord)) {
+					return true;
+				}
+				
+			}
+			
+			
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return false;
+		
+	}
+	
+	
+	
+	/*
+	 * getFavList method gets all the trackid that associate with the current user, then we 
+	 * use the trackId to extract artist and title to display in a table
+	 */
+	
+	public static HashMap<String, String> getFavList(String username) {
+		
+		
+		HashMap<String, String> favMap = new HashMap<String, String>();
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement favLists = con.prepareStatement("SELECT trackid FROM favs WHERE username = ?");
+			favLists.setString(1, username);
+			set = favLists.executeQuery();
+			while (set.next()) {
+				
+				String trackId = set.getString("trackid");
+				favMap.put(trackId, username);
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return favMap;
+	}
+	
+	/*
+	 * based on artist input returns the bio info stored in the database
+	 */
+	
+	public static String getBio(String artist) {
+		String bio = "";
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement bios = con.prepareStatement("SELECT bio FROM lastfm WHERE name = ?");
+			bios.setString(1, artist);
+			set = bios.executeQuery();
+			
+			//bio = set.getString("bio");
+			while (set.next()) {
+				
+				bio = set.getString("bio");
+				
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return bio;
+		
+	}
+	
+	public static int getListenersOrPlayCount(String artist, String input) {
+		
+		int output = 0;
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			if (input.equals("playcount")) {
+				
+				PreparedStatement playcount = con.prepareStatement("SELECT playcount FROM lastfm WHERE name = ?");
+				playcount.setString(1, artist);
+				set = playcount.executeQuery();
+				while (set.next()) {
+					
+					output += set.getInt("playcount");
+					
+				}
+				
+			}
+			
+			if (input.equals("listeners")) {
+				
+				PreparedStatement listeners = con.prepareStatement("SELECT listeners FROM lastfm WHERE name = ?");
+				listeners.setString(1, artist);
+				set = listeners.executeQuery();
+				while (set.next()) {
+					
+					output += set.getInt("listeners");
+					
+				}
+			}
+			
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return output;
+	}
+	
+	/*
+	 * create a TreeMap <playcount, artist name>
+	 */
+	
+	public static TreeMap<Integer, String> byPlayCount() {
+		
+		
+		TreeMap<Integer, String> playCount = new TreeMap<Integer, String>();
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement pCount = con.prepareStatement("SELECT name, playcount FROM lastfm");
+			set = pCount.executeQuery();
+			while (set.next()) {
+				
+				String name = set.getString("name");
+				int playcount = set.getInt("playcount");
+				playCount.put(playcount, name);
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return playCount;
+	}
+	
+	public static JSONArray displaySearchHistory(String username) {
+		
+		
+		JSONArray searchHistory = new JSONArray();
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement pCount = con.prepareStatement("SELECT type, query FROM history WHERE username = ?");
+			pCount.setString(1, username);
+			set = pCount.executeQuery();
+			while (set.next()) {
+				
+				String type = set.getString("type");
+				String query = set.getString("query");
+				JSONObject search = new JSONObject();
+				search.put(type, query);
+				searchHistory.add(search);
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return searchHistory;
+	}
+	
+	public static void clearHistory(String username) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			
+			PreparedStatement clearHistory = con.prepareStatement("DELETE FROM history WHERE username = ?");
+			
+			clearHistory.setString(1, username);
+			clearHistory.execute();
+			con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public static void changePassword(String username, String password) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+				
+			PreparedStatement userTable = con.prepareStatement("UPDATE user SET password = ? WHERE username = ?");
+				userTable.setString(1, password);
+				userTable.setString(2, username);
+				userTable.execute();
+				con.close();
+				
+				
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void addToLastFmTable(JSONObject request,  DBConfig dbconfig, String artistString) {
+		
+		
+		
+		
+		try {
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, LASTFM)) {
+				
+				createLastFmTable(dbconfig);
+			}
+			
+			PreparedStatement updateStmt = con.prepareStatement("INSERT INTO lastfm (name, listeners, playcount, bio) VALUES (?, ?, ?, ?)");
+			
+			if (request == null) {
+				con.close();
+				return;
+			}
+			
+			if (request.get("artist") != null) {
+				
+			
+				JSONObject artist = (JSONObject) request.get("artist");
+			
+			
+			
+				if (artist.get("name") != null) {
+					updateStmt.setString(1, artistString);
+				} else {
+					
+					con.close();
+					return;
+				}
+				
+				
+				if (artist.get("stats") != null) {
+					updateStmt.setInt(2,Integer.parseInt((String) ((JSONObject) artist.get("stats")).get("listeners")));
+					updateStmt.setInt(3, Integer.parseInt((String) ((JSONObject) artist.get("stats")).get("playcount")));
+				}
+				else {
+					updateStmt.setInt(2, 0);
+					updateStmt.setInt(3, 0);
+				}
+				
+				if (artist.get("bio") != null) {
+					updateStmt.setString(4, (String) ((JSONObject) artist.get("bio")).get("summary"));
+				}
+				else {
+					updateStmt.setString(4, null);
+				}
+				updateStmt.execute();
+				con.close();
+			}
+			else {
+				con.close();
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
+	
+	// create a table called users that has full name, username, and password
+	public static void createUserTable(DBConfig dbconfig) throws SQLException {
+		
+		 
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE user " +
+                "(fullname VARCHAR(100) NOT NULL, " + 
+                " username VARCHAR(100), " + 
+                " password VARCHAR(100), " +
+                " PRIMARY KEY ( username ))"; 
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+		conn.close();
+		
+		
+	}
+	
+	public static void createSearchHistoryTable(DBConfig dbconfig) throws SQLException {
+		
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE history " +
+                "(username VARCHAR(100) NOT NULL, " + 
+				"type VARCHAR(100)," + 
+                "query VARCHAR(100))"; 
+
+
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+		conn.close();
+		
+		
+	}
+	
+	public static void createFavoritesTable(DBConfig dbconfig) throws SQLException {
+		
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE favs " +
+                "(username VARCHAR(100) NOT NULL, " + 
+                " trackid VARCHAR(100))";
+                
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+		conn.close();
+		
+		
+	}
+	
+	public static void createLastFmTable(DBConfig dbconfig) throws SQLException {
+		
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE lastfm " +
+                "(name VARCHAR(100) NOT NULL, " + 
+                " listeners INTEGER, " + 
+                " playcount INTEGER, " + 
+                " bio LONGTEXT," +
+                " PRIMARY KEY ( name ))"; 
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+					
+	}
+	
+	/**
+	 * A helper method that returns a database connection.
+	 * A calling method is responsible for closing the connection when finished.
+	 * @param dbconfig
+	 * @return
+	 * @throws SQLException
+	 */
+	public static Connection getConnection(DBConfig dbconfig) throws SQLException {
+
+		String username  = dbconfig.getUsername();
+		String password  = dbconfig.getPassword();
+		String db  = dbconfig.getDb();
+
+		try {
+			// load driver
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		}
+		catch (Exception e) {
+			System.err.println("Can't find driver");
+			System.exit(1);
+		}
+
+		// format "jdbc:mysql://[hostname][:port]/[dbname]"
+		//note: if connecting through an ssh tunnel make sure to use 127.0.0.1 and
+		//also to that the ports are set up correctly
+		String host = dbconfig.getHost();
+		String port = dbconfig.getPort();
+		String urlString = "jdbc:mysql://" + host + ":" + port + "/"+db + "?characterEncoding=UTF8";
+		Connection con = DriverManager.getConnection(urlString,
+				username,
+				password);
+
+		return con;
+	}
+
+	/**
+	 * If the artist table exists in the database, removes that table.
+	 * 
+	 * @param dbconfig
+	 * @param tables
+	 * @throws SQLException
+	 */
+	public static void clearTables(DBConfig dbconfig, ArrayList<String> tables) throws SQLException {
+
+		Connection con = getConnection(dbconfig);
+
+		for(String table: tables) {
+			//create a statement object
+			Statement stmt = con.createStatement();
+			if(tableExists(con, table)) {
+				String dropStmt = "DROP TABLE " + table;
+				stmt.executeUpdate(dropStmt);
+			}
+
+		}
+		con.close();
+	}
+
+	/**
+	 * Helper method that determines whether a table exists in the database.
+	 * @param con
+	 * @param table
+	 * @return
+	 * @throws SQLException
+	 */
+	private static boolean tableExists(Connection con, String table) throws SQLException {
+
+		DatabaseMetaData metadata = con.getMetaData();
+		ResultSet resultSet;
+		resultSet = metadata.getTables(null, null, table, null);
+
+		if(resultSet.next()) {
+			// Table exists
+			return true;
+		}		
+		return false;
+	}
+
+
+}

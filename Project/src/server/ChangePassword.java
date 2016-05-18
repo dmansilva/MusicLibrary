@@ -1,0 +1,90 @@
+package server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import database.DBHelper;
+
+public class ChangePassword extends BaseServlet {
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		HttpSession session = request.getSession();
+		PrintWriter writer = prepareResponse(response);
+		if(!isLoggedIn(request, response, session)) {
+			response.sendRedirect(response.encodeRedirectURL("/login?" + STATUS + "=" + NOT_LOGGED_IN));
+			return;
+		}
+		String status = getParameterValue(request, STATUS);
+		boolean statusok = status != null && status.equals(ERROR)?false:true;
+		boolean mismatch = status != null && status.equals(MIXMATCH)?true:false;
+		
+		String header = header();
+		String footer =  "<html>" +
+				"<center> <a href=\"/logout\" >Logout</a> </center>" +
+				"<center> <a href=\"/search\" >Go back to Search</a> </center>" +
+				"<center> <a href=\"/favsList\" >Favs List</a> </center>" +
+				"<center> <a href=\"/allArtists\" > See all Artist Alphabetically </a> </center>" + 
+				"<center> <a href=\"/playcount\" >All Artists sorted by Play Count</a> </center>" +
+				"</html>";
+		
+		String body = "<html>" + 
+						"<body>" +
+						"<form action=\"changepassword\" method=\"post\">" +
+						"<center> Change Password </center><br/>" + 
+						"<center> New Password: "  +
+						"<input type=\"password\" name=\"password\"></center><br/>" +
+						"<center> Verify Password: " +
+						"<input type=\"password\" name=\"vpassword\"></center><br/>" +
+						"<hr>" +
+						"<hr>" +
+						"<center><input type=\"submit\" value=\"Submit\"></center><br/>" +
+						"</form>" +
+						"</body>" +
+					  "</html>";
+		
+		if(!statusok) {
+			writer.println("<h3><font color=\"red\">Invalid Request to Create a New User</font></h3>");
+		} else if(mismatch) {
+			writer.println("<h3><font color=\"red\">Passwords do not Match!</font></h3>");
+		}
+		
+		String responseHtml = header + body + footer;
+		writer.println(responseHtml);
+		
+		
+	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession();
+		String password = request.getParameter(PASSWORD);
+		String verifypass = request.getParameter(VERIFYPASS);
+		String username = (String) session.getAttribute(USERNAME);
+		
+		if ((password == null || password.trim().equals("")) || (verifypass == null || verifypass.trim().equals(""))) {
+			response.sendRedirect(response.encodeRedirectURL("/changepassword?" + STATUS + "=" + ERROR));
+			return;
+		}
+		
+		if (!password.equals(verifypass)) {
+			// passwords don't match
+			response.sendRedirect(response.encodeRedirectURL("/changepassword?" + STATUS + "=" + MIXMATCH));
+			return;
+		}
+		
+		session.setAttribute(PASSWORD, password);
+		
+		DBHelper.changePassword(username, password);
+		
+		response.sendRedirect(response.encodeRedirectURL("/search?") + STATUS + "=" + PASSCHANGE);
+	}
+
+}

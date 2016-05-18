@@ -7,6 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.sql.*;
 
@@ -18,6 +22,9 @@ public class DBHelper {
 	private static DBConfig dbconfig = new DBConfig();
 	private static String USER = "user";
 	private static String FAVORITE = "favs";
+	private static String LASTFM = "lastfm";
+	private static String HISTORY = "history";
+	private static String SUGGESTED = "suggested";
 	
 	
 	
@@ -34,14 +41,16 @@ public class DBHelper {
 			
 			Connection con = getConnection(dbconfig);
 			if (!tableExists(con, USER)) {
+				System.out.println("here");
 				createUserTable(dbconfig);
 			}
 				
-				PreparedStatement userTable = con.prepareStatement("INSERT INTO user (fullname, username, password) VALUES (?, ?, ?)");
+				PreparedStatement userTable = con.prepareStatement("INSERT INTO user (fullname, username, password, admin) VALUES (?, ?, ?, ?)");
 				
 				userTable.setString(1, fullname);
 				userTable.setString(2, username);
 				userTable.setString(3, password);
+				userTable.setInt(4, 0);
 
 				userTable.execute();
 				con.close();
@@ -75,6 +84,242 @@ public class DBHelper {
 				
 				favTable.execute();
 				con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	public static void addToSearchHistory(String username, String type, String query) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, HISTORY)) {
+				
+				createSearchHistoryTable(dbconfig);
+			}
+				
+				PreparedStatement historyTable = con.prepareStatement("INSERT INTO history (username, type, query) VALUES (?, ?, ?)");
+				
+				historyTable.setString(1, username);
+				historyTable.setString(2, type);
+				historyTable.setString(3, query);
+				
+				
+				historyTable.execute();
+				con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void addToSuggestSearchHistory(String type, String query) {
+		PreparedStatement suggestedTable = null;
+		PreparedStatement updateCountTable = null;
+		ResultSet result = null;
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, SUGGESTED)) {
+				System.out.println("here");
+				createSuggestedSearchTable(dbconfig);
+			}
+			
+			if (isInSuggested(type, query)) {
+				
+				suggestedTable = con.prepareStatement("SELECT count FROM suggested WHERE type = ? AND query = ?");
+				suggestedTable.setString(1, type);
+				suggestedTable.setString(2, query);
+				result = suggestedTable.executeQuery();
+
+				while (result.next()) {
+
+					int count = result.getInt("count");
+					count = count + 1;
+					updateCountTable = con.prepareStatement("UPDATE suggested SET count = ? WHERE type = ? AND query = ?");
+					updateCountTable.setInt(1, count);
+					updateCountTable.setString(2, type);
+					updateCountTable.setString(3, query);
+					updateCountTable.execute();
+				}
+				con.close();
+			}
+			else {
+				
+				suggestedTable = con.prepareStatement("INSERT INTO suggested (type, query, count) VALUES (?, ?, ?)");
+				suggestedTable.setString(1, type);
+				suggestedTable.setString(2, query);
+				suggestedTable.setInt(3, 1);
+				suggestedTable.execute();
+				con.close();
+			}
+				
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
+	private static boolean isInSuggested(String type, String query) {
+		
+		String checkSuggested = "SELECT type, query FROM suggested";
+		Connection con = null;
+		ResultSet result = null;
+		PreparedStatement suggestedTable;
+		try {
+			con = getConnection(dbconfig);
+			suggestedTable = con.prepareStatement(checkSuggested);
+			result = suggestedTable.executeQuery();
+			
+			while (result.next()) {
+				
+				String typeinTable = result.getString("type");
+				String queryinTable = result.getString("query");
+				
+				if (type.equals(typeinTable) && query.equals(queryinTable)) {
+					return true;
+				}
+				
+			}
+			
+			
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return false;
+
+	}
+	
+	public static JSONArray getSuggestedList() {
+		
+		
+		JSONArray suggestedArray = new JSONArray();
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement suggested = con.prepareStatement("SELECT * FROM suggested");
+			
+			set = suggested.executeQuery();
+			while (set.next()) {
+				
+				String type = set.getString("type");
+				String query = set.getString("query");
+				JSONObject search = new JSONObject();
+				search.put("type", type);
+				search.put("query", query);
+				suggestedArray.add(search);
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return suggestedArray;
+	}
+
+
+	public static void addAdmin(String username) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			
+				
+			PreparedStatement historyTable = con.prepareStatement("UPDATE user SET admin=1 WHERE username = ?");
+			
+			historyTable.setString(1, username);
+			historyTable.execute();
+			con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static boolean isAdmin(String username) {
+		
+		Connection con = null;
+		ResultSet set = null;
+		
+		try {
+			
+			con = getConnection(dbconfig);
+			PreparedStatement userTable = con.prepareStatement("SELECT admin FROM user WHERE username = ?");
+			userTable.setString(1, username);
+			set = userTable.executeQuery();
+			while (set.next()) {
+				int value = set.getInt("admin");
+				if (value == 1) {
+					return true;
+				}
+			}
+			
+			
+			
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		} 
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+					set.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		return false;
+	}
+	
+	public static void removeFav(String username, String trackId) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			
+			PreparedStatement deleteFav = con.prepareStatement("DELETE FROM favs WHERE username=? AND trackid=?");
+			
+			deleteFav.setString(1, username);
+			deleteFav.setString(2, trackId);
+			deleteFav.execute();
+			con.close();
 
 		}
 		catch (SQLException e) {
@@ -208,6 +453,271 @@ public class DBHelper {
 		return favMap;
 	}
 	
+	/*
+	 * based on artist input returns the bio info stored in the database
+	 */
+	
+	public static String getBio(String artist) {
+		String bio = "";
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement bios = con.prepareStatement("SELECT bio FROM lastfm WHERE name = ?");
+			bios.setString(1, artist);
+			set = bios.executeQuery();
+			while (set.next()) {
+				
+				bio = set.getString("bio");
+				
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return bio;
+		
+	}
+	
+	public static int getListenersOrPlayCount(String artist, String input) {
+		
+		int output = 0;
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			if (input.equals("playcount")) {
+				
+				PreparedStatement playcount = con.prepareStatement("SELECT playcount FROM lastfm WHERE name = ?");
+				playcount.setString(1, artist);
+				set = playcount.executeQuery();
+				while (set.next()) {
+					
+					output += set.getInt("playcount");
+					
+				}
+				
+			}
+			
+			if (input.equals("listeners")) {
+				
+				PreparedStatement listeners = con.prepareStatement("SELECT listeners FROM lastfm WHERE name = ?");
+				listeners.setString(1, artist);
+				set = listeners.executeQuery();
+				while (set.next()) {
+					
+					output += set.getInt("listeners");
+					
+				}
+			}
+			
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return output;
+	}
+	
+	/*
+	 * create a TreeMap <playcount, artist name>
+	 */
+	
+	public static TreeMap<Integer, String> byPlayCount() {
+		
+		
+		TreeMap<Integer, String> playCount = new TreeMap<Integer, String>();
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement pCount = con.prepareStatement("SELECT name, playcount FROM lastfm");
+			set = pCount.executeQuery();
+			while (set.next()) {
+				
+				String name = set.getString("name");
+				int playcount = set.getInt("playcount");
+				playCount.put(playcount, name);
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return playCount;
+	}
+	
+	public static JSONArray displaySearchHistory(String username) {
+		
+		
+		JSONArray searchHistory = new JSONArray();
+		Connection con = null;
+		ResultSet set = null;
+		try {
+			con = getConnection(dbconfig);
+			PreparedStatement pCount = con.prepareStatement("SELECT type, query FROM history WHERE username = ?");
+			pCount.setString(1, username);
+			set = pCount.executeQuery();
+			while (set.next()) {
+				
+				String type = set.getString("type");
+				String query = set.getString("query");
+				JSONObject search = new JSONObject();
+				search.put("type", type);
+				search.put("query", query);
+				searchHistory.add(search);
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+		finally {
+			if (con != (null)) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return searchHistory;
+	}
+	
+	public static void clearHistory(String username) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+			
+			PreparedStatement clearHistory = con.prepareStatement("DELETE FROM history WHERE username = ?");
+			
+			clearHistory.setString(1, username);
+			clearHistory.execute();
+			con.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	public static void changePassword(String username, String password) {
+		
+		try {
+			
+			Connection con = getConnection(dbconfig);
+				
+			PreparedStatement userTable = con.prepareStatement("UPDATE user SET password = ? WHERE username = ?");
+				userTable.setString(1, password);
+				userTable.setString(2, username);
+				userTable.execute();
+				con.close();
+				
+				
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void addToLastFmTable(JSONObject request,  DBConfig dbconfig, String artistString) {
+		
+		
+		
+		
+		try {
+			Connection con = getConnection(dbconfig);
+			if (!tableExists(con, LASTFM)) {
+				
+				createLastFmTable(dbconfig);
+			}
+			
+			PreparedStatement updateStmt = con.prepareStatement("INSERT INTO lastfm (name, listeners, playcount, bio) VALUES (?, ?, ?, ?)");
+			
+			if (request == null) {
+				con.close();
+				return;
+			}
+			
+			if (request.get("artist") != null) {
+				
+			
+				JSONObject artist = (JSONObject) request.get("artist");
+			
+			
+			
+				if (artist.get("name") != null) {
+					updateStmt.setString(1, artistString);
+				} else {
+					
+					con.close();
+					return;
+				}
+				
+				
+				if (artist.get("stats") != null) {
+					updateStmt.setInt(2,Integer.parseInt((String) ((JSONObject) artist.get("stats")).get("listeners")));
+					updateStmt.setInt(3, Integer.parseInt((String) ((JSONObject) artist.get("stats")).get("playcount")));
+				}
+				else {
+					updateStmt.setInt(2, 0);
+					updateStmt.setInt(3, 0);
+				}
+				
+				if (artist.get("bio") != null) {
+					updateStmt.setString(4, (String) ((JSONObject) artist.get("bio")).get("summary"));
+				}
+				else {
+					updateStmt.setString(4, null);
+				}
+				updateStmt.execute();
+				con.close();
+			}
+			else {
+				con.close();
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
 	
 	
 	// create a table called users that has full name, username, and password
@@ -220,7 +730,48 @@ public class DBHelper {
                 "(fullname VARCHAR(100) NOT NULL, " + 
                 " username VARCHAR(100), " + 
                 " password VARCHAR(100), " +
+                " admin INTEGER NOT NULL, " + 
                 " PRIMARY KEY ( username ))"; 
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+		conn.close();
+		
+		
+	}
+	
+	public static void createSearchHistoryTable(DBConfig dbconfig) throws SQLException {
+		
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE history " +
+                "(username VARCHAR(100) NOT NULL, " + 
+				"type VARCHAR(100)," + 
+                "query VARCHAR(100))"; 
+
+
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+		conn.close();
+		
+		
+	}
+	
+	public static void createSuggestedSearchTable(DBConfig dbconfig) throws SQLException {
+		
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE suggested " +
+                "(type VARCHAR(100) NOT NULL, " + 
+				"query VARCHAR(100)," + 
+                "count INTEGER)"; 
+
+
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		
@@ -247,6 +798,24 @@ public class DBHelper {
 		conn.close();
 		
 		
+	}
+	
+	public static void createLastFmTable(DBConfig dbconfig) throws SQLException {
+		
+		Connection conn = getConnection(dbconfig);
+		
+		String sql = "CREATE TABLE lastfm " +
+                "(name VARCHAR(100) NOT NULL, " + 
+                " listeners INTEGER, " + 
+                " playcount INTEGER, " + 
+                " bio LONGTEXT," +
+                " PRIMARY KEY ( name ))"; 
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		
+					
 	}
 	
 	/**
@@ -276,7 +845,7 @@ public class DBHelper {
 		//also to that the ports are set up correctly
 		String host = dbconfig.getHost();
 		String port = dbconfig.getPort();
-		String urlString = "jdbc:mysql://" + host + ":" + port + "/"+db;
+		String urlString = "jdbc:mysql://" + host + ":" + port + "/"+db + "?characterEncoding=UTF8";
 		Connection con = DriverManager.getConnection(urlString,
 				username,
 				password);
@@ -327,5 +896,6 @@ public class DBHelper {
 		return false;
 	}
 
+	
 
 }
